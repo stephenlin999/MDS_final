@@ -1,0 +1,36 @@
+{
+  "target_date": "2022-03-14",
+  "solver_status": "Optimal",
+  "objective": 76453.15,
+  "solar_total_wh": 112239.6,
+  "load_total_wh": 186300.0,
+  "grid_bought_total_wh": 76453.2,
+  "grid_export_total_wh": 0.0,
+  "over_contract_total_wh": 0.0,
+  "end_soc_wh": 15000.0,
+  "terminal_soc_wh": 15000.0,
+  "export_hours": [],
+  "all_checks_pass": true,
+  "validation": {
+    "solver_optimal": true,
+    "no_simultaneous_cd": true,
+    "soc_within_bounds": true,
+    "soc_dynamics_consistent": true,
+    "terminal_soc_satisfied": true,
+    "end_soc_wh": 15000.0,
+    "soc_terminal_wh": 15000.0,
+    "export_hours": []
+  },
+  "battery_params": {
+    "E_cap_wh": 30000.0,
+    "P_max_wh": 8000.0,
+    "eta_c": 0.95,
+    "eta_d": 0.95,
+    "SOC_min_wh": 3000.0,
+    "SOC_max_wh": 27000.0,
+    "SOC_init_wh": 15000.0,
+    "SOC_terminal_wh": 15000.0,
+    "UPS_reserve_wh": 6000.0,
+    "P_contract_wh": 8000.0
+  }
+}

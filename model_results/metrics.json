@@ -1,0 +1,1039 @@
+{
+  "data_file": "/Users/stephenlin/Downloads/MDS_final/Renewable_featured.csv",
+  "target_column": "Energy delta[Wh]",
+  "baseline_column": "energy_delta_lag_1d",
+  "random_state": 42,
+  "test_fraction": 0.2,
+  "validation_fraction_of_dev": 0.2,
+  "splits": {
+    "train": {
+      "rows": 127042,
+      "metric_rows": 61701,
+      "start_time": "2017-01-02 00:00:00",
+      "end_time": "2020-08-17 08:15:00"
+    },
+    "validation": {
+      "rows": 31761,
+      "metric_rows": 14708,
+      "start_time": "2020-08-17 08:30:00",
+      "end_time": "2021-07-14 04:30:00"
+    },
+    "dev": {
+      "rows": 158803,
+      "metric_rows": 76409,
+      "start_time": "2017-01-02 00:00:00",
+      "end_time": "2021-07-14 04:30:00"
+    },
+    "test": {
+      "rows": 39701,
+      "metric_rows": 19551,
+      "start_time": "2021-07-14 04:45:00",
+      "end_time": "2022-08-31 17:45:00"
+    }
+  },
+  "metric": {
+    "name": "MAPE",
+    "mask": "solar_elevation_deg > 0 and Energy delta[Wh] > 0",
+    "denominator_floor_wh": 100.0,
+    "known_limitation": "MAPE remains sensitive to low generation dawn/dusk and cloudy-transition periods even with a denominator floor."
+  },
+  "capacity_normalization": {
+    "observed_capacity_wh": 5020.0,
+    "reported_capacity_wh": 7700.0,
+    "reported_capacity_note": "External/report capacity assumption used only for alternate nRMSE reporting."
+  },
+  "feature_policy": {
+    "mode": "forecast_strict",
+    "primary_features": [
+      "solar_elevation_deg",
+      "solar_zenith_deg",
+      "solar_azimuth_deg",
+      "cos_solar_zenith",
+      "ghi_clear_sky_wm2",
+      "dni_clear_sky_wm2",
+      "dhi_clear_sky_wm2",
+      "ghi_toa_horizontal_wm2",
+      "hour_sin",
+      "hour_cos",
+      "weekday_sin",
+      "weekday_cos",
+      "month_sin",
+      "month_cos",
+      "season",
+      "is_weekend",
+      "temp",
+      "pressure",
+      "humidity",
+      "wind_speed",
+      "rain_1h",
+      "snow_1h",
+      "clouds_all",
+      "weather_type",
+      "ghi_lag_1h",
+      "ghi_lag_3h",
+      "ghi_lag_1d",
+      "clear_sky_index_lag_1h",
+      "clear_sky_index_lag_3h",
+      "clear_sky_index_lag_1d",
+      "energy_delta_lag_1h",
+      "energy_delta_lag_3h",
+      "energy_delta_lag_1d",
+      "ghi_roll_mean_3h",
+      "ghi_roll_std_3h",
+      "energy_roll_mean_3h"
+    ],
+    "forbidden_primary_features": [
+      "GHI",
+      "clear_sky_index",
+      "cloud_cover_proxy",
+      "humidity_x_cloud_cover",
+      "temp_x_ghi",
+      "wind_x_clear_sky_index"
+    ],
+    "notes": [
+      "Synchronous measured GHI and clear_sky_index are excluded from the primary model.",
+      "Lagged clear_sky_index features are allowed because they only use historical observations."
+    ]
+  },
+  "validation_metrics": {
+    "baseline_mape": 123.6186635954992,
+    "xgb_default_mape": 41.711583300820905,
+    "default_beats_baseline": true,
+    "robust_metrics": {
+      "baseline": {
+        "rows": 14708,
+        "mape": 123.6186635954992,
+        "r2": 0.11447606456331905,
+        "rmse_wh": 1109.9942886239587,
+        "mae_wh": 684.8478379113408,
+        "bias_wh": -7.212945335871635,
+        "corr": 0.5574628464416069,
+        "nrmse_observed_capacity_pct": 22.111440012429455,
+        "nrmse_reported_capacity_pct": 14.415510241869594
+      },
+      "xgb_default": {
+        "rows": 14708,
+        "mape": 41.711583300820905,
+        "r2": 0.8259086482194543,
+        "rmse_wh": 492.16326019301,
+        "mae_wh": 287.780668915354,
+        "bias_wh": -5.93409844842958,
+        "corr": 0.909304167208582,
+        "nrmse_observed_capacity_pct": 9.804049007828883,
+        "nrmse_reported_capacity_pct": 6.391730651857272
+      }
+    }
+  },
+  "optuna": {
+    "status": "fixed_params_fast_final",
+    "skip_reason": null,
+    "n_trials": 0,
+    "cv_splits": 3,
+    "sampler": "TPESampler(seed=42)",
+    "best_params": {
+      "max_depth": 8,
+      "learning_rate": 0.02140235297964198,
+      "subsample": 0.6454562418017751,
+      "n_estimators": 751
+    },
+    "best_cv_mape": 38.75239522553416,
+    "trials": []
+  },
+  "test_metrics": {
+    "baseline_mape": 94.51017671009201,
+    "xgb_default_mape": 39.25818063691387,
+    "xgb_tuned_mape": 36.095643073202346,
+    "robust_metrics": {
+      "baseline": {
+        "rows": 19551,
+        "mape": 94.51017671009201,
+        "r2": 0.32985136233151735,
+        "rmse_wh": 990.2152974161369,
+        "mae_wh": 595.1434263027683,
+        "bias_wh": -16.62158477399268,
+        "corr": 0.6654214408659476,
+        "nrmse_observed_capacity_pct": 19.725404330998742,
+        "nrmse_reported_capacity_pct": 12.859938927482299
+      },
+      "xgb_default": {
+        "rows": 19551,
+        "mape": 39.25818063691387,
+        "r2": 0.8500870588602221,
+        "rmse_wh": 468.3425584669774,
+        "mae_wh": 275.88777071877604,
+        "bias_wh": 9.308346810351713,
+        "corr": 0.9222056128185894,
+        "nrmse_observed_capacity_pct": 9.329533037190785,
+        "nrmse_reported_capacity_pct": 6.082370889181524
+      },
+      "xgb_tuned": {
+        "rows": 19551,
+        "mape": 36.095643073202346,
+        "r2": 0.8598574927110434,
+        "rmse_wh": 452.82354814077024,
+        "mae_wh": 261.5002993137756,
+        "bias_wh": 6.360688377510631,
+        "corr": 0.9273131520603309,
+        "nrmse_observed_capacity_pct": 9.020389405194626,
+        "nrmse_reported_capacity_pct": 5.880825300529484
+      }
+    }
+  },
+  "baseline_error_diagnostics": {
+    "validation": {
+      "baseline_mape_quantiles": {
+        "0.5": 49.12984261501211,
+        "0.75": 89.70701496864919,
+        "0.9": 277.75586854460096,
+        "0.95": 540.3999999999997,
+        "0.99": 1484.925127623371
+      },
+      "by_month": [
+        {
+          "group": "1",
+          "count": 738,
+          "mean_mape": 118.26296351772383,
+          "median_mape": 49.4384236453202
+        },
+        {
+          "group": "2",
+          "count": 1037,
+          "mean_mape": 124.08485193246162,
+          "median_mape": 58.07453416149069
+        },
+        {
+          "group": "3",
+          "count": 1400,
+          "mean_mape": 236.10682633867575,
+          "median_mape": 73.52002503128912
+        },
+        {
+          "group": "4",
+          "count": 1614,
+          "mean_mape": 107.50348835327667,
+          "median_mape": 48.96666666666667
+        },
+        {
+          "group": "5",
+          "count": 1891,
+          "mean_mape": 65.13969965093169,
+          "median_mape": 37.40381398461024
+        },
+        {
+          "group": "6",
+          "count": 1974,
+          "mean_mape": 70.68997276658133,
+          "median_mape": 24.77265084020641
+        },
+        {
+          "group": "7",
+          "count": 843,
+          "mean_mape": 142.52137654280398,
+          "median_mape": 53.221288515406165
+        },
+        {
+          "group": "8",
+          "count": 789,
+          "mean_mape": 135.42060924817477,
+          "median_mape": 55.24652338811631
+        },
+        {
+          "group": "9",
+          "count": 1454,
+          "mean_mape": 94.7914592160512,
+          "median_mape": 31.194295900178254
+        },
+        {
+          "group": "10",
+          "count": 1223,
+          "mean_mape": 158.17617562225774,
+          "median_mape": 65.53846153846153
+        },
+        {
+          "group": "11",
+          "count": 926,
+          "mean_mape": 165.72961837473648,
+          "median_mape": 70.0253807106599
+        },
+        {
+          "group": "12",
+          "count": 819,
+          "mean_mape": 151.0544909053995,
+          "median_mape": 66.34615384615384
+        }
+      ],
+      "by_hour": [
+        {
+          "group": "2",
+          "count": 31,
+          "mean_mape": 10.774193548387096,
+          "median_mape": 8.0
+        },
+        {
+          "group": "3",
+          "count": 237,
+          "mean_mape": 32.75505882212754,
+          "median_mape": 26.0
+        },
+        {
+          "group": "4",
+          "count": 438,
+          "mean_mape": 41.839367833513194,
+          "median_mape": 29.04081632653061
+        },
+        {
+          "group": "5",
+          "count": 666,
+          "mean_mape": 52.34581728602797,
+          "median_mape": 32.45886534158221
+        },
+        {
+          "group": "6",
+          "count": 875,
+          "mean_mape": 84.58816569309842,
+          "median_mape": 43.51851851851852
+        },
+        {
+          "group": "7",
+          "count": 1115,
+          "mean_mape": 162.79458390523357,
+          "median_mape": 63.127615062761514
+        },
+        {
+          "group": "8",
+          "count": 1258,
+          "mean_mape": 200.90893796087465,
+          "median_mape": 67.85527469370012
+        },
+        {
+          "group": "9",
+          "count": 1291,
+          "mean_mape": 181.62622456902477,
+          "median_mape": 67.4350171652771
+        },
+        {
+          "group": "10",
+          "count": 1305,
+          "mean_mape": 155.3907105573697,
+          "median_mape": 62.14689265536724
+        },
+        {
+          "group": "11",
+          "count": 1321,
+          "mean_mape": 157.5621510810838,
+          "median_mape": 60.85319949811794
+        },
+        {
+          "group": "12",
+          "count": 1318,
+          "mean_mape": 130.78661747672646,
+          "median_mape": 58.60530829988622
+        },
+        {
+          "group": "13",
+          "count": 1288,
+          "mean_mape": 111.34688343545866,
+          "median_mape": 51.352772291712384
+        },
+        {
+          "group": "14",
+          "count": 1149,
+          "mean_mape": 116.66218118473101,
+          "median_mape": 53.24074074074075
+        },
+        {
+          "group": "15",
+          "count": 918,
+          "mean_mape": 95.09993184642722,
+          "median_mape": 44.572206378014
+        },
+        {
+          "group": "16",
+          "count": 700,
+          "mean_mape": 56.5620079500523,
+          "median_mape": 30.040650406504067
+        },
+        {
+          "group": "17",
+          "count": 468,
+          "mean_mape": 38.36889448191209,
+          "median_mape": 26.31999508267257
+        },
+        {
+          "group": "18",
+          "count": 268,
+          "mean_mape": 28.972264435847652,
+          "median_mape": 18.0
+        },
+        {
+          "group": "19",
+          "count": 62,
+          "mean_mape": 12.381720430107526,
+          "median_mape": 7.000000000000001
+        }
+      ],
+      "by_target_bin": [
+        {
+          "group": "(-0.001, 50.0]",
+          "count": 1316,
+          "mean_mape": 106.1079027355623,
+          "median_mape": 25.0
+        },
+        {
+          "group": "(100.0, 200.0]",
+          "count": 1738,
+          "mean_mape": 229.55752051880992,
+          "median_mape": 61.786028688312356
+        },
+        {
+          "group": "(1000.0, 2000.0]",
+          "count": 2157,
+          "mean_mape": 60.55252228342243,
+          "median_mape": 54.08608858390518
+        },
+        {
+          "group": "(200.0, 500.0]",
+          "count": 2839,
+          "mean_mape": 180.9289835277804,
+          "median_mape": 61.28048780487805
+        },
+        {
+          "group": "(2000.0, 5000.0]",
+          "count": 3256,
+          "mean_mape": 40.3862619210421,
+          "median_mape": 33.978246328483884
+        },
+        {
+          "group": "(50.0, 100.0]",
+          "count": 1157,
+          "mean_mape": 228.00432152117546,
+          "median_mape": 52.0
+        },
+        {
+          "group": "(500.0, 1000.0]",
+          "count": 2244,
+          "mean_mape": 106.91965464560121,
+          "median_mape": 60.90970774588855
+        }
+      ],
+      "top_errors": [
+        {
+          "Time": "2021-06-27 09:00:00",
+          "Energy delta[Wh]": 78.0,
+          "energy_delta_lag_1d": 3802.0,
+          "solar_elevation_deg": 53.12257791275685,
+          "baseline_ape": 3724.0
+        },
+        {
+          "Time": "2021-04-05 08:30:00",
+          "Energy delta[Wh]": 63.0,
+          "energy_delta_lag_1d": 3611.0,
+          "solar_elevation_deg": 34.62821124013917,
+          "baseline_ape": 3547.9999999999995
+        },
+        {
+          "Time": "2021-04-05 08:15:00",
+          "Energy delta[Wh]": 62.0,
+          "energy_delta_lag_1d": 3601.0,
+          "solar_elevation_deg": 33.07528134739428,
+          "baseline_ape": 3539.0
+        },
+        {
+          "Time": "2021-03-11 08:45:00",
+          "Energy delta[Wh]": 74.0,
+          "energy_delta_lag_1d": 3524.0,
+          "solar_elevation_deg": 26.290036323497485,
+          "baseline_ape": 3450.0
+        },
+        {
+          "Time": "2021-03-11 08:30:00",
+          "Energy delta[Wh]": 38.0,
+          "energy_delta_lag_1d": 3468.0,
+          "solar_elevation_deg": 24.921171948586647,
+          "baseline_ape": 3429.9999999999995
+        },
+        {
+          "Time": "2021-03-11 09:15:00",
+          "Energy delta[Wh]": 110.0,
+          "energy_delta_lag_1d": 3843.0,
+          "solar_elevation_deg": 28.6595767592032,
+          "baseline_ape": 3393.636363636364
+        },
+        {
+          "Time": "2021-04-05 08:00:00",
+          "Energy delta[Wh]": 89.0,
+          "energy_delta_lag_1d": 3368.0,
+          "solar_elevation_deg": 31.41782841177123,
+          "baseline_ape": 3279.0
+        },
+        {
+          "Time": "2020-09-25 11:45:00",
+          "Energy delta[Wh]": 32.0,
+          "energy_delta_lag_1d": 3288.0,
+          "solar_elevation_deg": 32.87859953218725,
+          "baseline_ape": 3256.0
+        },
+        {
+          "Time": "2021-03-11 08:15:00",
+          "Energy delta[Wh]": 23.0,
+          "energy_delta_lag_1d": 3264.0,
+          "solar_elevation_deg": 23.441684110614982,
+          "baseline_ape": 3240.9999999999995
+        },
+        {
+          "Time": "2021-03-11 09:00:00",
+          "Energy delta[Wh]": 113.0,
+          "energy_delta_lag_1d": 3684.0,
+          "solar_elevation_deg": 27.539083450823956,
+          "baseline_ape": 3160.1769911504425
+        },
+        {
+          "Time": "2021-03-04 09:45:00",
+          "Energy delta[Wh]": 120.0,
+          "energy_delta_lag_1d": 3910.0,
+          "solar_elevation_deg": 27.727111195546232,
+          "baseline_ape": 3158.333333333333
+        },
+        {
+          "Time": "2021-03-07 08:15:00",
+          "Energy delta[Wh]": 99.0,
+          "energy_delta_lag_1d": 3172.0,
+          "solar_elevation_deg": 21.9133455068986,
+          "baseline_ape": 3073.0
+        },
+        {
+          "Time": "2021-06-12 13:00:00",
+          "Energy delta[Wh]": 95.0,
+          "energy_delta_lag_1d": 3103.0,
+          "solar_elevation_deg": 49.99413829971053,
+          "baseline_ape": 3008.0
+        },
+        {
+          "Time": "2021-03-07 08:30:00",
+          "Energy delta[Wh]": 110.0,
+          "energy_delta_lag_1d": 3370.0,
+          "solar_elevation_deg": 23.38051147304177,
+          "baseline_ape": 2963.6363636363635
+        },
+        {
+          "Time": "2021-03-11 08:00:00",
+          "Energy delta[Wh]": 25.0,
+          "energy_delta_lag_1d": 2961.0,
+          "solar_elevation_deg": 21.86071090786725,
+          "baseline_ape": 2936.0
+        },
+        {
+          "Time": "2021-03-04 10:00:00",
+          "Energy delta[Wh]": 132.0,
+          "energy_delta_lag_1d": 3979.0,
+          "solar_elevation_deg": 28.409185290717556,
+          "baseline_ape": 2914.3939393939395
+        },
+        {
+          "Time": "2020-09-25 11:00:00",
+          "Energy delta[Wh]": 99.0,
+          "energy_delta_lag_1d": 2891.0,
+          "solar_elevation_deg": 34.47416793988781,
+          "baseline_ape": 2792.0
+        },
+        {
+          "Time": "2021-03-21 08:15:00",
+          "Energy delta[Wh]": 97.0,
+          "energy_delta_lag_1d": 2846.0,
+          "solar_elevation_deg": 27.32447799846754,
+          "baseline_ape": 2749.0
+        },
+        {
+          "Time": "2021-03-11 09:45:00",
+          "Energy delta[Wh]": 144.0,
+          "energy_delta_lag_1d": 4093.0,
+          "solar_elevation_deg": 30.480958160882174,
+          "baseline_ape": 2742.361111111111
+        },
+        {
+          "Time": "2021-03-04 09:30:00",
+          "Energy delta[Wh]": 135.0,
+          "energy_delta_lag_1d": 3821.0,
+          "solar_elevation_deg": 26.897153709787226,
+          "baseline_ape": 2730.3703703703704
+        }
+      ]
+    },
+    "test": {
+      "baseline_mape_quantiles": {
+        "0.5": 39.075630252100844,
+        "0.75": 80.55577909978396,
+        "0.9": 184.0,
+        "0.95": 374.94,
+        "0.99": 1166.2878787878785
+      },
+      "by_month": [
+        {
+          "group": "1",
+          "count": 883,
+          "mean_mape": 198.25305199699292,
+          "median_mape": 58.74011299435029
+        },
+        {
+          "group": "2",
+          "count": 1010,
+          "mean_mape": 109.48592744780389,
+          "median_mape": 60.637936035357576
+        },
+        {
+          "group": "3",
+          "count": 1429,
+          "mean_mape": 86.86489786761459,
+          "median_mape": 14.285714285714285
+        },
+        {
+          "group": "4",
+          "count": 1615,
+          "mean_mape": 90.12318329073767,
+          "median_mape": 41.92708333333333
+        },
+        {
+          "group": "5",
+          "count": 1858,
+          "mean_mape": 89.82134297781879,
+          "median_mape": 38.653571984170455
+        },
+        {
+          "group": "6",
+          "count": 1964,
+          "mean_mape": 80.23627192971317,
+          "median_mape": 28.634244036781986
+        },
+        {
+          "group": "7",
+          "count": 3062,
+          "mean_mape": 59.37033593400236,
+          "median_mape": 31.408300753402866
+        },
+        {
+          "group": "8",
+          "count": 3428,
+          "mean_mape": 78.50164079146879,
+          "median_mape": 35.57005716565658
+        },
+        {
+          "group": "9",
+          "count": 1450,
+          "mean_mape": 93.98598155349379,
+          "median_mape": 40.746036765615756
+        },
+        {
+          "group": "10",
+          "count": 1215,
+          "mean_mape": 140.82925314749758,
+          "median_mape": 62.383177570093466
+        },
+        {
+          "group": "11",
+          "count": 897,
+          "mean_mape": 145.7466423130971,
+          "median_mape": 68.48874598070739
+        },
+        {
+          "group": "12",
+          "count": 740,
+          "mean_mape": 106.70501701159716,
+          "median_mape": 63.0884476534296
+        }
+      ],
+      "by_hour": [
+        {
+          "group": "2",
+          "count": 22,
+          "mean_mape": 14.954545454545455,
+          "median_mape": 12.0
+        },
+        {
+          "group": "3",
+          "count": 368,
+          "mean_mape": 26.95625719519862,
+          "median_mape": 20.38961038961039
+        },
+        {
+          "group": "4",
+          "count": 753,
+          "mean_mape": 39.168167556627616,
+          "median_mape": 26.495726495726498
+        },
+        {
+          "group": "5",
+          "count": 1016,
+          "mean_mape": 46.97535442923668,
+          "median_mape": 27.013513513513516
+        },
+        {
+          "group": "6",
+          "count": 1230,
+          "mean_mape": 72.99086642550876,
+          "median_mape": 33.172929221316316
+        },
+        {
+          "group": "7",
+          "count": 1433,
+          "mean_mape": 105.51479823350206,
+          "median_mape": 43.34203655352481
+        },
+        {
+          "group": "8",
+          "count": 1591,
+          "mean_mape": 128.52382515779973,
+          "median_mape": 50.0
+        },
+        {
+          "group": "9",
+          "count": 1628,
+          "mean_mape": 126.63514117826381,
+          "median_mape": 51.18668586513786
+        },
+        {
+          "group": "10",
+          "count": 1631,
+          "mean_mape": 128.803999544071,
+          "median_mape": 51.23113582208102
+        },
+        {
+          "group": "11",
+          "count": 1628,
+          "mean_mape": 141.98175602549307,
+          "median_mape": 51.821280970895685
+        },
+        {
+          "group": "12",
+          "count": 1624,
+          "mean_mape": 127.62706709059526,
+          "median_mape": 50.45368798339936
+        },
+        {
+          "group": "13",
+          "count": 1617,
+          "mean_mape": 99.37041821042686,
+          "median_mape": 48.38337182448037
+        },
+        {
+          "group": "14",
+          "count": 1469,
+          "mean_mape": 84.4426074096358,
+          "median_mape": 43.65942028985507
+        },
+        {
+          "group": "15",
+          "count": 1203,
+          "mean_mape": 72.15639315041403,
+          "median_mape": 35.76965669988926
+        },
+        {
+          "group": "16",
+          "count": 1008,
+          "mean_mape": 45.04061072975863,
+          "median_mape": 26.25873525031504
+        },
+        {
+          "group": "17",
+          "count": 788,
+          "mean_mape": 39.0353433921064,
+          "median_mape": 27.0
+        },
+        {
+          "group": "18",
+          "count": 467,
+          "mean_mape": 24.83751407174172,
+          "median_mape": 14.814814814814813
+        },
+        {
+          "group": "19",
+          "count": 75,
+          "mean_mape": 11.86537216828479,
+          "median_mape": 7.000000000000001
+        }
+      ],
+      "by_target_bin": [
+        {
+          "group": "(-0.001, 50.0]",
+          "count": 1567,
+          "mean_mape": 83.25823007718772,
+          "median_mape": 22.0
+        },
+        {
+          "group": "(100.0, 200.0]",
+          "count": 2138,
+          "mean_mape": 175.19165795333222,
+          "median_mape": 49.20554854981084
+        },
+        {
+          "group": "(1000.0, 2000.0]",
+          "count": 3162,
+          "mean_mape": 55.9847613380551,
+          "median_mape": 45.926183211652315
+        },
+        {
+          "group": "(200.0, 500.0]",
+          "count": 3516,
+          "mean_mape": 142.87746001360304,
+          "median_mape": 49.60851480303401
+        },
+        {
+          "group": "(2000.0, 5000.0]",
+          "count": 4844,
+          "mean_mape": 32.92877903614683,
+          "median_mape": 23.794319257278858
+        },
+        {
+          "group": "(50.0, 100.0]",
+          "count": 1462,
+          "mean_mape": 162.89264185704303,
+          "median_mape": 46.0
+        },
+        {
+          "group": "(500.0, 1000.0]",
+          "count": 2862,
+          "mean_mape": 92.83928749789689,
+          "median_mape": 51.727990753226734
+        }
+      ],
+      "top_errors": [
+        {
+          "Time": "2022-01-29 11:15:00",
+          "Energy delta[Wh]": 49.0,
+          "energy_delta_lag_1d": 3721.0,
+          "solar_elevation_deg": 17.88600186373855,
+          "baseline_ape": 3672.0
+        },
+        {
+          "Time": "2022-06-30 12:00:00",
+          "Energy delta[Wh]": 106.0,
+          "energy_delta_lag_1d": 3772.0,
+          "solar_elevation_deg": 56.179115273540496,
+          "baseline_ape": 3458.490566037736
+        },
+        {
+          "Time": "2022-01-29 12:00:00",
+          "Energy delta[Wh]": 44.0,
+          "energy_delta_lag_1d": 3428.0,
+          "solar_elevation_deg": 16.7671835900782,
+          "baseline_ape": 3384.0000000000005
+        },
+        {
+          "Time": "2022-06-30 11:45:00",
+          "Energy delta[Wh]": 106.0,
+          "energy_delta_lag_1d": 3601.0,
+          "solar_elevation_deg": 57.192969289039354,
+          "baseline_ape": 3297.1698113207544
+        },
+        {
+          "Time": "2022-08-20 11:45:00",
+          "Energy delta[Wh]": 103.0,
+          "energy_delta_lag_1d": 3479.0,
+          "solar_elevation_deg": 46.6855977336245,
+          "baseline_ape": 3277.669902912621
+        },
+        {
+          "Time": "2022-08-20 11:15:00",
+          "Energy delta[Wh]": 107.0,
+          "energy_delta_lag_1d": 3607.0,
+          "solar_elevation_deg": 47.83990084557492,
+          "baseline_ape": 3271.028037383178
+        },
+        {
+          "Time": "2022-01-23 11:15:00",
+          "Energy delta[Wh]": 95.0,
+          "energy_delta_lag_1d": 3324.0,
+          "solar_elevation_deg": 16.35854266964947,
+          "baseline_ape": 3229.0
+        },
+        {
+          "Time": "2022-08-20 12:15:00",
+          "Energy delta[Wh]": 82.0,
+          "energy_delta_lag_1d": 3281.0,
+          "solar_elevation_deg": 44.785605170452776,
+          "baseline_ape": 3199.0
+        },
+        {
+          "Time": "2022-01-23 11:30:00",
+          "Energy delta[Wh]": 77.0,
+          "energy_delta_lag_1d": 3254.0,
+          "solar_elevation_deg": 16.11759121306754,
+          "baseline_ape": 3177.0
+        },
+        {
+          "Time": "2022-06-28 09:00:00",
+          "Energy delta[Wh]": 103.0,
+          "energy_delta_lag_1d": 3302.0,
+          "solar_elevation_deg": 53.07300028183349,
+          "baseline_ape": 3105.8252427184466
+        },
+        {
+          "Time": "2022-01-12 11:45:00",
+          "Energy delta[Wh]": 84.0,
+          "energy_delta_lag_1d": 2950.0,
+          "solar_elevation_deg": 13.444286825251798,
+          "baseline_ape": 2866.0
+        },
+        {
+          "Time": "2021-10-11 08:00:00",
+          "Energy delta[Wh]": 68.0,
+          "energy_delta_lag_1d": 2912.0,
+          "solar_elevation_deg": 20.98589402597396,
+          "baseline_ape": 2844.0
+        },
+        {
+          "Time": "2022-08-20 11:00:00",
+          "Energy delta[Wh]": 115.0,
+          "energy_delta_lag_1d": 3370.0,
+          "solar_elevation_deg": 48.11416092458897,
+          "baseline_ape": 2830.4347826086955
+        },
+        {
+          "Time": "2022-01-08 10:45:00",
+          "Energy delta[Wh]": 71.0,
+          "energy_delta_lag_1d": 2860.0,
+          "solar_elevation_deg": 13.643893298388331,
+          "baseline_ape": 2789.0
+        },
+        {
+          "Time": "2021-08-22 08:30:00",
+          "Energy delta[Wh]": 2.0,
+          "energy_delta_lag_1d": 2769.0,
+          "solar_elevation_deg": 39.56169289164457,
+          "baseline_ape": 2767.0
+        },
+        {
+          "Time": "2022-01-08 10:30:00",
+          "Energy delta[Wh]": 66.0,
+          "energy_delta_lag_1d": 2806.0,
+          "solar_elevation_deg": 13.51736684279932,
+          "baseline_ape": 2740.0
+        },
+        {
+          "Time": "2022-01-12 12:00:00",
+          "Energy delta[Wh]": 70.0,
+          "energy_delta_lag_1d": 2764.0,
+          "solar_elevation_deg": 12.911091596641333,
+          "baseline_ape": 2694.0
+        },
+        {
+          "Time": "2022-08-28 13:00:00",
+          "Energy delta[Wh]": 106.0,
+          "energy_delta_lag_1d": 2892.0,
+          "solar_elevation_deg": 38.04762170887392,
+          "baseline_ape": 2628.301886792453
+        },
+        {
+          "Time": "2022-08-20 12:30:00",
+          "Energy delta[Wh]": 79.0,
+          "energy_delta_lag_1d": 2682.0,
+          "solar_elevation_deg": 43.58645566261,
+          "baseline_ape": 2603.0
+        },
+        {
+          "Time": "2022-05-24 11:45:00",
+          "Energy delta[Wh]": 146.0,
+          "energy_delta_lag_1d": 3940.0,
+          "solar_elevation_deg": 54.51275939639449,
+          "baseline_ape": 2598.6301369863013
+        }
+      ]
+    }
+  },
+  "outputs": {
+    "metrics_json": "/Users/stephenlin/Downloads/MDS_final/model_results/metrics.json",
+    "predictions_test_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/predictions_test.csv",
+    "shap_summary_png": "/Users/stephenlin/Downloads/MDS_final/model_results/shap_summary.png",
+    "shap_importance_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/shap_importance.csv",
+    "prediction_scatter_tuned_png": "/Users/stephenlin/Downloads/MDS_final/model_results/prediction_scatter_tuned.png",
+    "residual_by_month_png": "/Users/stephenlin/Downloads/MDS_final/model_results/residual_by_month.png",
+    "residual_by_target_bin_png": "/Users/stephenlin/Downloads/MDS_final/model_results/residual_by_target_bin.png",
+    "ape_by_target_bin_png": "/Users/stephenlin/Downloads/MDS_final/model_results/ape_by_target_bin.png"
+  },
+  "shap": {
+    "status": "completed",
+    "skip_reason": null,
+    "sample_size": 2000,
+    "top20": [
+      {
+        "feature": "energy_delta_lag_1h",
+        "mean_abs_shap": 353.52972412109375
+      },
+      {
+        "feature": "energy_roll_mean_3h",
+        "mean_abs_shap": 197.53424072265625
+      },
+      {
+        "feature": "dni_clear_sky_wm2",
+        "mean_abs_shap": 122.95098876953125
+      },
+      {
+        "feature": "hour_sin",
+        "mean_abs_shap": 103.27001190185547
+      },
+      {
+        "feature": "ghi_clear_sky_wm2",
+        "mean_abs_shap": 73.2504653930664
+      },
+      {
+        "feature": "ghi_roll_std_3h",
+        "mean_abs_shap": 40.02129364013672
+      },
+      {
+        "feature": "ghi_roll_mean_3h",
+        "mean_abs_shap": 37.00083923339844
+      },
+      {
+        "feature": "clouds_all",
+        "mean_abs_shap": 30.25843048095703
+      },
+      {
+        "feature": "solar_azimuth_deg",
+        "mean_abs_shap": 27.94045066833496
+      },
+      {
+        "feature": "energy_delta_lag_3h",
+        "mean_abs_shap": 25.864973068237305
+      },
+      {
+        "feature": "ghi_toa_horizontal_wm2",
+        "mean_abs_shap": 20.35646629333496
+      },
+      {
+        "feature": "ghi_lag_3h",
+        "mean_abs_shap": 14.296828269958496
+      },
+      {
+        "feature": "clear_sky_index_lag_1h",
+        "mean_abs_shap": 14.120105743408203
+      },
+      {
+        "feature": "ghi_lag_1h",
+        "mean_abs_shap": 12.595043182373047
+      },
+      {
+        "feature": "humidity",
+        "mean_abs_shap": 8.475096702575684
+      },
+      {
+        "feature": "dhi_clear_sky_wm2",
+        "mean_abs_shap": 8.128679275512695
+      },
+      {
+        "feature": "energy_delta_lag_1d",
+        "mean_abs_shap": 8.072879791259766
+      },
+      {
+        "feature": "ghi_lag_1d",
+        "mean_abs_shap": 7.231858730316162
+      },
+      {
+        "feature": "wind_speed",
+        "mean_abs_shap": 7.0350260734558105
+      },
+      {
+        "feature": "temp",
+        "mean_abs_shap": 6.447518348693848
+      }
+    ]
+  }
+}
