@@ -9,10 +9,16 @@ The project addresses a real-world energy management problem: given a solar pane
 **Pipeline stages:**
 
 ```
-Raw data → Cleaning → Feature Engineering → XGBoost Forecast → MILP Battery Dispatch
+Raw data → Cleaning → Feature Engineering → XGBoost Forecast
+        → Quantile Lower Bound → MILP Battery Dispatch
+
+Optional diagnostics:
+Monte Carlo Backtest / Year Projection
 ```
 
 The forecast is **day-ahead strict**: same-time measured GHI and cloud index are excluded from all models. Only lagged and theoretical (pvlib) features are used.
+
+**Important note about Monte Carlo:** Monte Carlo is not part of the main research backbone in this project. The main pipeline is still feature engineering → XGBoost/q10 prediction → MILP dispatch. Monte Carlo is added only as a diagnostic sanity check to verify that the model and conservative forecast are not overly optimistic under different historical sunlight scenarios.
 
 ---
 
@@ -81,6 +87,28 @@ python train_quantile_model.py
 
 Trains a 10th-percentile (q10) quantile XGBoost model using the same features and hyperparameters. Outputs 15-min q10 predictions and a hourly MILP-ready forecast file. Run after Step 3.
 
+**Optional — Monte Carlo backtest**
+
+```bash
+MC_BACKTEST_SIMULATIONS=1000 python monte_carlo_backtest.py
+```
+
+This is an auxiliary diagnostic, not a core stage of the research method. It helps answer whether the trained forecast behaves too optimistically under many historical sunlight scenarios. The model is trained only on the development period, Monte Carlo analogue days are sampled only from the development period, and the results are compared against held-out complete test days.
+
+**Optional — Monte Carlo yearly solar projection**
+
+```bash
+python monte_carlo_yearly_solar.py
+```
+
+This estimates the next year of solar generation using historical analogue-day Monte Carlo sampling. It first trains the existing point and q10 models on all available featured data, samples historically similar days for each future day, and outputs annual/monthly/daily probability summaries and plots to `model_results/monte_carlo_year/`.
+
+Useful options:
+
+```bash
+MC_FUTURE_START=2026-05-16 MC_SIMULATIONS=1000 python monte_carlo_yearly_solar.py
+```
+
 **Step 5 — MILP battery dispatch**
 
 ```bash
@@ -117,6 +145,67 @@ MAPE is inflated by dawn/dusk and cloudy-transition periods with low actual gene
 | Target coverage (1 − α) | 90% |
 | Actual coverage | 89.07% |
 | Mean gap (q10 − actual) | −444 Wh |
+
+### Monte Carlo Backtest (held-out daily test)
+
+This is a supplementary sanity check, not the research backbone and not a replacement for the held-out XGBoost test-set evaluation. Its purpose is to check whether the model and q10 conservative forecast are too optimistic when exposed to many sampled historical sunlight scenarios.
+
+- Test period evaluated: 412 complete days, 2021-07-15 to 2022-08-30
+- Monte Carlo simulations: 1,000 per test day
+- Analogue pool: development data only, ±21 day-of-year window
+
+| Backtest item | Value | Interpretation |
+|---------------|-------|----------------|
+| Direct model daily MAPE | 17.00% | Point model is accurate at daily aggregation |
+| Direct model daily R² | 0.9785 | Very strong daily fit on held-out days |
+| Direct model daily RMSE | 5,609 Wh | Average daily-scale error magnitude |
+| Direct model total bias | +1.42% | Total generation is only slightly overpredicted |
+| Direct q10 daily coverage | 98.06% | Conservative forecast is safely below actual most days |
+| MC mean daily MAPE | 131.86% | Analogue Monte Carlo mean is not a good daily point forecast |
+| MC p10-p90 coverage | 79.85% | The uncertainty interval is well calibrated versus nominal 80% |
+
+Main takeaway: use the XGBoost model for point prediction, use Monte Carlo for uncertainty/risk bands. The Monte Carlo mean should not replace the model prediction as the daily forecast.
+
+In report wording, this should be described as:
+
+> Monte Carlo simulation is used as an auxiliary robustness check to examine whether the forecast is overly optimistic under uncertain sunlight conditions. It is not the main modeling method; the main predictive model remains the forecast-strict XGBoost/q10 pipeline.
+
+Outputs:
+
+- `model_results/monte_carlo_backtest/monte_carlo_backtest_summary.json`
+- `model_results/monte_carlo_backtest/monte_carlo_backtest_daily.csv`
+- `model_results/monte_carlo_backtest/backtest_daily_timeseries.png`
+- `model_results/monte_carlo_backtest/backtest_actual_vs_prediction.png`
+- `model_results/monte_carlo_backtest/backtest_residual_by_month.png`
+- `model_results/monte_carlo_backtest/backtest_interval_coverage.png`
+
+Plot PNG files are generated locally by the script and ignored by git. Regenerate them when needed rather than committing image artifacts.
+
+### Monte Carlo Next-Year Solar Projection
+
+Projection period:
+
+- 2026-05-16 + 365 days
+- 1,000 Monte Carlo simulations
+- historical analogue window: ±21 day-of-year days
+
+| Forecast | Annual mean | Annual p10 | Annual p50 | Annual p90 |
+|----------|-------------|------------|------------|------------|
+| Point forecast | 19,463.6 kWh | 18,791.2 kWh | 19,460.5 kWh | 20,162.0 kWh |
+| Q10 conservative | 12,305.3 kWh | 11,676.1 kWh | 12,299.0 kWh | 12,945.4 kWh |
+
+Outputs:
+
+- `model_results/monte_carlo_year/monte_carlo_summary.json`
+- `model_results/monte_carlo_year/monte_carlo_daily_summary.csv`
+- `model_results/monte_carlo_year/monte_carlo_monthly_summary.csv`
+- `model_results/monte_carlo_year/monte_carlo_annual_scenarios.csv`
+- `model_results/monte_carlo_year/annual_total_distribution.png`
+- `model_results/monte_carlo_year/monthly_energy_fan.png`
+- `model_results/monte_carlo_year/daily_energy_fan.png`
+- `model_results/monte_carlo_year/expected_monthly_energy.png`
+
+Plot PNG files are generated locally by the script and ignored by git. Regenerate them when needed rather than committing image artifacts.
 
 ### MILP Dispatch (single-day prototype)
 
@@ -172,8 +261,9 @@ MDS_final/
 ├── train_xgboost_pipeline.py     # Stage 3: point forecast + Optuna tuning
 ├── train_quantile_model.py       # Stage 4: q10 quantile forecast
 ├── milp_daily_schedule.py        # Stage 5: MILP battery dispatch
+├── monte_carlo_backtest.py       # Optional: held-out Monte Carlo sanity check
+├── monte_carlo_yearly_solar.py   # Optional: next-year Monte Carlo projection
 ├── requirements.txt
-├── PROJECT_STATUS.md             # Detailed project log
 ├── model_results/
 │   ├── predictions_test.csv          # Point forecast test predictions (15-min)
 │   ├── predictions_quantile_q10.csv  # Q10 forecast test predictions (15-min)
@@ -182,6 +272,8 @@ MDS_final/
 │   ├── milp_summary_<date>.json      # Dispatch summary + validation
 │   ├── metrics.json                  # Full pipeline metrics
 │   ├── quantile_coverage.json        # Q10 coverage diagnostics
+│   ├── monte_carlo_backtest/         # Held-out Monte Carlo backtest summaries + plots
+│   ├── monte_carlo_year/             # Yearly Monte Carlo forecast summaries + plots
 │   ├── shap_summary.png              # SHAP beeswarm plot
 │   ├── shap_importance.csv           # Feature importance ranking
 │   └── *.png                         # Residual and diagnostic plots
@@ -193,6 +285,8 @@ MDS_final/
 ## Key Design Decisions
 
 **Day-ahead forecast strictness:** Same-time GHI and clear-sky index are excluded. Lagged versions (1h, 3h, 1d) are used instead. Same-time weather variables (temperature, humidity, cloud cover) are retained as a proxy for forecast weather inputs.
+
+**Monte Carlo positioning:** Monte Carlo backtesting is intentionally treated as a secondary validation tool. It does not define the final forecast, tune the model, or drive the MILP directly. Its role is to provide evidence that the forecast distribution and q10 lower bound are not unrealistically optimistic.
 
 **MAPE floor:** Denominator is `max(y_true, 100 Wh)` to prevent dawn/dusk near-zero values from dominating the error metric.
 

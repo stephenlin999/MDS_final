@@ -24,5 +24,8 @@ env/
 # ── Matplotlib cache (auto-generated) ────────────────────────────────────────
 model_results/matplotlib_cache/
 
+# ── Generated plot images (regenerate from scripts; do not version PNG output)
+model_results/**/*.png
+
 # ── Jupyter ───────────────────────────────────────────────────────────────────
 .ipynb_checkpoints/

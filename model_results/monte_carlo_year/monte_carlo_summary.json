@@ -1,0 +1,38 @@
+{
+  "method": "Historical analogue Monte Carlo using forecast-strict XGBoost point and q10 models.",
+  "future_start": "2026-05-16",
+  "future_days": 365,
+  "simulations": 1000,
+  "analog_window_days": 21,
+  "historical_complete_days": 2067,
+  "assumptions": [
+    "Future weather is unknown; each future day samples historical analogue days with similar day-of-year.",
+    "Daily 15-min shape and weather persistence are inherited from sampled historical analogue days.",
+    "This is a probabilistic planning scenario, not a deterministic meteorological forecast."
+  ],
+  "annual_point_kwh": {
+    "mean": 19463.621609724,
+    "p05": 18599.080748953245,
+    "p10": 18791.179303533936,
+    "p50": 19460.499132995603,
+    "p90": 20162.003640625,
+    "p95": 20346.730515441897
+  },
+  "annual_q10_kwh": {
+    "mean": 12305.290077646825,
+    "p05": 11562.415274267578,
+    "p10": 11676.09554445622,
+    "p50": 12299.01635053122,
+    "p90": 12945.3973314003,
+    "p95": 13104.37968896141
+  },
+  "outputs": {
+    "daily_summary_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/monte_carlo_daily_summary.csv",
+    "monthly_summary_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/monte_carlo_monthly_summary.csv",
+    "annual_scenarios_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/monte_carlo_annual_scenarios.csv",
+    "annual_histogram_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/annual_total_distribution.png",
+    "monthly_fan_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/monthly_energy_fan.png",
+    "daily_fan_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/daily_energy_fan.png",
+    "expected_monthly_bar_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/expected_monthly_energy.png"
+  }
+}
