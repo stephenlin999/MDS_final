@@ -255,14 +255,11 @@ Interpretation:
 - Use Monte Carlo for uncertainty and risk bands, not as the daily point forecast.
 - The Monte Carlo mean MAPE should not be compared against XGBoost point-forecast MAPE as a model-selection metric; that would evaluate the wrong object.
 
-## Monte Carlo Year Projection
+### Supplementary Annual Analogue Scenario
 
-Projection period:
+This annual scenario is intentionally a secondary output. It is not a meteorological forecast of the next year. It only shows the annual total implied by the analogue sampling assumption, where future sunlight patterns are sampled from historical day-of-year analogues.
 
-- start: 2026-05-16
-- duration: 365 days
-- simulations: 1,000
-- analogue window: +/- 21 day-of-year days
+Projection setup: 2026-05-16 start, 365 days, 1,000 simulations, +/- 21 day-of-year analogue window.
 
 | Forecast | Annual Mean | Annual P10 | Annual P50 | Annual P90 |
 |----------|------------:|-----------:|-----------:|-----------:|
@@ -271,10 +268,13 @@ Projection period:
 
 Interpretation:
 
-- This projection is a planning scenario, not a meteorological forecast.
-- It should be used to understand annual uncertainty, not to assert an exact future generation total.
+- The narrow p10-p90 range is not a claim that true year-ahead weather uncertainty is only about this wide.
+- Annual aggregation smooths day-level variability, and the analogue method assumes historical seasonal patterns remain representative.
+- Treat this as a planning-scale scenario summary, not as a core research result or a guaranteed future-generation interval.
 
-## MILP Single-Day Prototype
+## Downstream MILP Integration Test
+
+This section documents prototype testing done to verify that the forecast module outputs can be consumed by downstream optimization. The full MILP design, penalty tuning, and operational interpretation belong to the optimization workstream.
 
 | Date | Scenario | Over-contract | End SOC | Status |
 |------|----------|--------------:|--------:|--------|
@@ -284,5 +284,6 @@ Interpretation:
 
 Interpretation:
 
-- The optimizer satisfies battery constraints on representative days.
-- A rolling multi-day MILP backtest is the next modeling step.
+- The forecast handoff file is compatible with the single-day MILP prototype.
+- The cloudy-day case showed 12,750 Wh over-contract, suggesting that downstream penalty coefficients and conservative scheduling rules still need calibration by the optimization workstream.
+- A rolling multi-day MILP backtest belongs to the optimization workstream after the forecast handoff format is fixed.

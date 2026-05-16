@@ -102,11 +102,11 @@ Purpose:
 
 The q10 model reuses the tuned point-forecast hyperparameters to avoid overfitting the quantile coverage on the test set.
 
-## 6. MILP Dispatch
+## 6. Forecast-to-MILP Handoff
 
-The MILP optimizer schedules battery charge/discharge using the solar forecast.
+The forecast module exports point and q10 solar forecasts in a format that can be consumed by the downstream MILP optimizer. The single-day MILP run in this repository is an integration check, not the final optimization workstream.
 
-Core constraints:
+Prototype constraints checked:
 
 - charge/discharge mutual exclusion via Big-M binary mode
 - battery state-of-charge dynamics
@@ -114,4 +114,4 @@ Core constraints:
 - terminal SOC lower bound
 - over-contract grid draw penalty
 
-The current implementation is a single-day prototype using a synthetic load profile.
+The current implementation uses a synthetic load profile. Full MILP design, penalty calibration, and rolling multi-day optimization belong to the optimization workstream.

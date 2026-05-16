@@ -13,7 +13,7 @@ Monte Carlo simulation is included only as an optional diagnostic. It is used to
 ## Documentation
 
 - [Methodology](docs/methodology.md): cleaning, feature engineering, model design, leakage control, evaluation, q10, and MILP formulation.
-- [Results](docs/results.md): point forecast, q10 coverage, Monte Carlo backtest, year projection, and MILP prototype results.
+- [Results](docs/results.md): point forecast, q10 coverage, Monte Carlo calibration, supplementary annual scenario, and downstream MILP handoff checks.
 - [Monte Carlo Positioning](docs/monte_carlo_note.md): how to describe Monte Carlo correctly in the report.
 
 ## Dataset
@@ -82,7 +82,7 @@ Seasonal extrapolation check:
 python scripts/diagnostics/extrapolation_check.py
 ```
 
-Next-year Monte Carlo projection:
+Supplementary annual analogue scenario:
 
 ```bash
 MC_FUTURE_START=2026-05-16 MC_SIMULATIONS=1000 python scripts/diagnostics/monte_carlo_yearly_solar.py
@@ -106,8 +106,8 @@ Use `solar_q10_wh` for conservative scheduling and `solar_point_wh` for the poin
 |-----------|-------------|
 | Point forecast | R2 0.8599, nRMSE 9.02%, mean MAPE 36.10%, median APE 17.42% |
 | q10 lower bound | 89.07% actual coverage against 90% target |
-| Monte Carlo backtest | p10-p90 interval coverage 79.85%; diagnostic only |
-| MILP prototype | Representative sunny/cloudy/surplus days solve successfully |
+| Monte Carlo backtest | p10-p90 interval coverage 79.85%; calibration diagnostic only |
+| MILP handoff check | Forecast output is consumable by single-day MILP; optimization tuning remains downstream |
 
 See [Results](docs/results.md) for the full tables and interpretation.
 
@@ -162,4 +162,4 @@ If a plot is needed for the report, regenerate it by running the corresponding s
 
 - Same-time weather variables are measured values used as proxies for forecast weather inputs, so true deployed day-ahead performance may be lower.
 - The MILP currently uses a synthetic load profile.
-- The current MILP is a single-day prototype; rolling multi-day optimization is the next step.
+- MILP design, penalty calibration, and rolling multi-day optimization belong to the downstream optimization workstream.

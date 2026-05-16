@@ -10,6 +10,8 @@ Feature engineering -> XGBoost/q10 forecast -> MILP dispatch
 
 Monte Carlo is added only as an auxiliary robustness check. Its purpose is to help judge whether the forecast and conservative lower bound are too optimistic under uncertain sunlight conditions.
 
+The annual Monte Carlo projection is even narrower in scope: it is an analogue scenario summary, not a true year-ahead meteorological forecast. Its p10-p90 annual range should be read as the distribution produced under historical analogue assumptions, not as the full uncertainty of future weather.
+
 ## What Monte Carlo Does Here
 
 The Monte Carlo scripts sample historical analogue days with similar day-of-year values. Those sampled days create many plausible solar-generation scenarios.
@@ -52,3 +54,4 @@ For the current project:
 - use q10 predictions for conservative MILP experiments
 - use Monte Carlo outputs as diagnostic evidence in the report
 - do not optimize or select the model based on Monte Carlo results
+- do not present the annual projection as a guaranteed future-generation interval
