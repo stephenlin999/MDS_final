@@ -6,9 +6,20 @@ This file keeps the main numerical results separate from the project README.
 
 Final test period: 2021-07-14 to 2022-08-31
 
+Current chronological split:
+
+- Full featured data range after warm-up filtering: 2017-01-02 to 2022-08-31
+- Train: 2017-01-02 to 2020-08-17
+- Validation: 2020-08-17 to 2021-07-14
+- Development set, train plus validation: 2017-01-02 to 2021-07-14
+- Final test: 2021-07-14 to 2022-08-31
+
+The metrics below are the canonical numbers for the current multi-year split. Earlier interim numbers were produced under different evaluation windows or settings and should not be compared directly.
+
 | Metric | Value |
 |--------|------:|
-| MAPE | 36.10% |
+| Mean MAPE | 36.10% |
+| Median APE | 17.42% |
 | R2 | 0.8599 |
 | RMSE | 452.82 Wh |
 | MAE | 261.50 Wh |
@@ -18,12 +29,15 @@ Final test period: 2021-07-14 to 2022-08-31
 Interpretation:
 
 - MAPE is inflated by low-generation dawn/dusk and cloudy-transition periods.
+- Median APE is roughly half of mean MAPE, confirming that the headline percentage error is driven by a difficult tail of cloudy or transition cases rather than systemic underperformance.
 - R2 and nRMSE show that the model is usable as a point forecast.
 - The model should still be treated as an optimistic proxy for true day-ahead deployment because same-time measured weather variables are used as forecast-weather proxies.
 
 ## Baseline Ladder
 
 The model comparison should be presented as a stepwise improvement rather than only comparing persistence and tuned XGBoost. This makes the design choices empirically grounded.
+
+This table is also based on the current canonical multi-year split above. The persistence baseline changed across earlier drafts because the test window and pipeline settings changed during debugging; the 94.51% value below is the current final-test baseline.
 
 | Model | Validation or CV MAPE | Test MAPE | Test R2 | Test RMSE |
 |-------|----------------------:|----------:|--------:|----------:|
@@ -39,7 +53,7 @@ Interpretation:
 - XGBoost improves strongly over linear regression, showing that nonlinear interactions and threshold effects matter.
 - Optuna tuning gives a smaller but still useful improvement over default XGBoost.
 
-The comparison is saved in `model_results/model_comparison.csv`.
+The comparison is saved in `model_results/reports/model_comparison.csv`.
 
 ## Seasonal Extrapolation Check
 
@@ -70,7 +84,51 @@ Interpretation:
 - The deterioration is largest in late autumn and winter, where generation is lower and percentage errors become more sensitive.
 - This supports a cautious conclusion: the feature set has meaningful seasonal generalization, but a full-year training set is important for robust winter performance.
 
-The extrapolation outputs are saved in `model_results/extrapolation_check_2017.csv` and `model_results/extrapolation_check_2017.json`.
+The extrapolation outputs are saved in `model_results/reports/extrapolation_check_2017.csv` and `model_results/reports/extrapolation_check_2017.json`.
+
+## Overfitting and Full-Range Distribution Shift
+
+This check uses the full available date range in `Renewable_featured.csv`: 2017-01 to 2022-08. The tuned XGBoost model is retrained on the development set and evaluated across train, validation, dev, and final test.
+
+| Split | MAPE | R2 | RMSE | MAE |
+|-------|-----:|---:|-----:|----:|
+| Train | 26.17% | 0.9481 | 285.95 Wh | 174.35 Wh |
+| Validation | 28.72% | 0.9367 | 296.87 Wh | 179.24 Wh |
+| Dev fit set | 26.66% | 0.9462 | 288.08 Wh | 175.29 Wh |
+| Final test | 36.10% | 0.8599 | 452.82 Wh | 261.50 Wh |
+
+Overfitting interpretation:
+
+- Dev-to-test R2 gap is 0.086.
+- Test MAPE is 9.44 percentage points higher than dev MAPE.
+- Test RMSE is 164.74 Wh higher than dev RMSE.
+- This is a visible generalization gap, but not a collapse. It is consistent with moderate model complexity plus distribution shift, not severe overfitting.
+
+Full-date-range calendar-month averages show the seasonal pattern:
+
+| Calendar month | Mean MAPE | Mean R2 | Mean actual generation | Mean cloud cover | Mean solar elevation |
+|---------------:|----------:|--------:|-----------------------:|-----------------:|---------------------:|
+| 1 | 35.25% | 0.890 | 452.95 Wh | 78.29 | 10.78 deg |
+| 2 | 34.98% | 0.929 | 973.04 Wh | 71.79 | 15.58 deg |
+| 3 | 29.89% | 0.929 | 1,318.03 Wh | 65.04 | 22.09 deg |
+| 4 | 24.31% | 0.924 | 1,514.31 Wh | 55.15 | 28.18 deg |
+| 5 | 24.78% | 0.930 | 1,396.75 Wh | 61.21 | 32.26 deg |
+| 6 | 20.05% | 0.951 | 1,381.45 Wh | 58.16 | 33.92 deg |
+| 7 | 25.54% | 0.902 | 1,242.60 Wh | 62.84 | 33.18 deg |
+| 8 | 27.91% | 0.896 | 1,372.15 Wh | 60.14 | 29.97 deg |
+| 9 | 30.86% | 0.912 | 1,259.87 Wh | 67.29 | 24.49 deg |
+| 10 | 37.29% | 0.874 | 984.53 Wh | 70.70 | 17.90 deg |
+| 11 | 38.50% | 0.861 | 478.60 Wh | 81.18 | 12.13 deg |
+| 12 | 35.83% | 0.784 | 337.26 Wh | 83.46 | 9.11 deg |
+
+Distribution-shift interpretation:
+
+- The weakest calendar months are late autumn and winter, especially October-December and January.
+- December has the lowest average R2, matching the physical setting: low solar elevation, short daylight, high cloud cover, and low actual generation.
+- The final test set includes all seasons from 2021-07 to 2022-08, so the issue is not that the test set is only winter. The issue is that winter-like months remain systematically harder across the full date range.
+- The practical report conclusion should be cautious: the model is not severely overfitted, but winter and cloudy low-generation regimes are distribution-shift-sensitive. For MILP, q10 lower-bound predictions are especially important in these months.
+
+The diagnostics are saved in `model_results/reports/overfitting_shift_diagnostics.json`, `model_results/reports/test_monthly_shift_metrics.csv`, and `model_results/reports/full_range_monthly_shift_metrics.csv`.
 
 ## Error Structure Diagnostics
 
@@ -151,7 +209,7 @@ The SHAP pattern is consistent with the physical story: high-error predictions d
 
 These are not random failures. They are cloudy or transition cases where lagged generation and theoretical irradiance still imply meaningful solar potential, but actual generation is suppressed by the current cloud state.
 
-The full diagnostics are saved in `model_results/error_structure_diagnostics.json`.
+The full diagnostics are saved in `model_results/reports/error_structure_diagnostics.json`.
 
 ## Quantile Lower Bound
 
@@ -170,7 +228,7 @@ Interpretation:
 
 ## Monte Carlo Backtest
 
-This is an auxiliary diagnostic, not the main research method.
+This is an auxiliary diagnostic, not the main research method. The Monte Carlo method is evaluated by calibration, not by point-forecast accuracy: its purpose is to produce uncertainty intervals around plausible sunlight scenarios. The correct headline metric is p10-p90 interval coverage, while the Monte Carlo mean MAPE is reported only as a negative control showing that the analogue mean should not be used as a daily point forecast.
 
 Backtest setup:
 
@@ -187,14 +245,15 @@ Backtest setup:
 | Direct model daily RMSE | 5,609 Wh | Daily-scale error magnitude |
 | Direct model total bias | +1.42% | Total generation is only slightly overpredicted |
 | Direct q10 daily coverage | 98.06% | Conservative forecast is safely below actual most days |
-| Monte Carlo mean daily MAPE | 131.86% | Analogue MC mean is not a good daily point forecast |
-| Monte Carlo p10-p90 coverage | 79.85% | Uncertainty interval is well calibrated versus nominal 80% |
+| Monte Carlo p10-p90 coverage | 79.85% | Main MC metric; well calibrated versus nominal 80% |
+| Monte Carlo mean daily MAPE, negative control | 131.86% | Documents that the MC mean is intentionally not a daily point forecast |
 
 Interpretation:
 
 - Use XGBoost for point prediction.
 - Use q10 for conservative MILP scheduling.
-- Use Monte Carlo for uncertainty/risk bands, not as the daily point forecast.
+- Use Monte Carlo for uncertainty and risk bands, not as the daily point forecast.
+- The Monte Carlo mean MAPE should not be compared against XGBoost point-forecast MAPE as a model-selection metric; that would evaluate the wrong object.
 
 ## Monte Carlo Year Projection
 

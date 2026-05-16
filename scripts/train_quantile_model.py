@@ -3,9 +3,9 @@ Phase 1 completion: train a 10th-percentile (q10) quantile XGBoost model.
 
 Same feature whitelist and hyperparameters as the tuned point-forecast model.
 Outputs:
-  model_results/predictions_quantile_q10.csv   -- 15-min test-set predictions
-  model_results/milp_solar_forecast_hourly.csv -- hourly MILP-ready forecast
-  model_results/quantile_coverage.json         -- coverage diagnostics
+  model_results/forecast/predictions_quantile_q10.csv   -- 15-min test-set predictions
+  model_results/forecast/milp_solar_forecast_hourly.csv -- hourly MILP-ready forecast
+  model_results/reports/quantile_coverage.json          -- coverage diagnostics
 """
 from __future__ import annotations
 
@@ -22,10 +22,12 @@ sys.path.insert(0, str(LOCAL_PACKAGE_DIR))
 
 from train_xgboost_pipeline import (
     FIXED_TUNED_PARAMS,
+    FORECAST_DIR,
     MAPE_FLOOR_WH,
     PRIMARY_FEATURES,
     PREDICTIONS_PATH,
     RANDOM_STATE,
+    REPORTS_DIR,
     RESULTS_DIR,
     TARGET_COLUMN,
     chronological_split,
@@ -33,9 +35,9 @@ from train_xgboost_pipeline import (
     metric_mask,
 )
 
-Q10_PREDICTIONS_PATH = RESULTS_DIR / "predictions_quantile_q10.csv"
-MILP_HOURLY_PATH = RESULTS_DIR / "milp_solar_forecast_hourly.csv"
-COVERAGE_PATH = RESULTS_DIR / "quantile_coverage.json"
+Q10_PREDICTIONS_PATH = FORECAST_DIR / "predictions_quantile_q10.csv"
+MILP_HOURLY_PATH = FORECAST_DIR / "milp_solar_forecast_hourly.csv"
+COVERAGE_PATH = REPORTS_DIR / "quantile_coverage.json"
 
 QUANTILE_ALPHA = 0.1
 
@@ -115,7 +117,8 @@ def resample_to_hourly(
 def main() -> None:
     import os
     os.environ.setdefault("MPLCONFIGDIR", str(RESULTS_DIR / "matplotlib_cache"))
-    RESULTS_DIR.mkdir(exist_ok=True)
+    for directory in [RESULTS_DIR, FORECAST_DIR, REPORTS_DIR]:
+        directory.mkdir(parents=True, exist_ok=True)
 
     from xgboost import XGBRegressor
 
@@ -174,7 +177,7 @@ def main() -> None:
 
     # coverage diagnostics
     stats = coverage_stats(split.test, q10_predictions, point_predictions)
-    (RESULTS_DIR / "quantile_coverage.json").write_text(
+    COVERAGE_PATH.write_text(
         json.dumps(stats, indent=2, ensure_ascii=False), encoding="utf-8"
     )
 

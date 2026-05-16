@@ -2,8 +2,8 @@
 Build report-ready model diagnostics.
 
 Outputs:
-  model_results/model_comparison.csv
-  model_results/error_structure_diagnostics.json
+  model_results/reports/model_comparison.csv
+  model_results/reports/error_structure_diagnostics.json
 
 The script reuses existing XGBoost predictions for final metrics, adds a
 linear-regression baseline using the same forecast-strict feature list, and
@@ -39,6 +39,8 @@ from train_xgboost_pipeline import (
     PRIMARY_FEATURES,
     PREDICTIONS_PATH,
     RANDOM_STATE,
+    METRICS_PATH,
+    REPORTS_DIR,
     RESULTS_DIR,
     TARGET_COLUMN,
     chronological_split,
@@ -52,8 +54,8 @@ from train_xgboost_pipeline import (
 
 
 os.environ.setdefault("MPLCONFIGDIR", str(RESULTS_DIR / "matplotlib_cache"))
-COMPARISON_PATH = RESULTS_DIR / "model_comparison.csv"
-DIAGNOSTICS_PATH = RESULTS_DIR / "error_structure_diagnostics.json"
+COMPARISON_PATH = REPORTS_DIR / "model_comparison.csv"
+DIAGNOSTICS_PATH = REPORTS_DIR / "error_structure_diagnostics.json"
 
 
 def fit_linear_baseline(split) -> tuple[np.ndarray, np.ndarray]:
@@ -68,8 +70,7 @@ def fit_linear_baseline(split) -> tuple[np.ndarray, np.ndarray]:
 
 
 def load_existing_metrics() -> dict[str, Any]:
-    metrics_path = RESULTS_DIR / "metrics.json"
-    return json.loads(metrics_path.read_text(encoding="utf-8"))
+    return json.loads(METRICS_PATH.read_text(encoding="utf-8"))
 
 
 def mape_for_frame(frame: pd.DataFrame, predictions: np.ndarray) -> float:
@@ -289,7 +290,8 @@ def shap_slice_diagnostics(split: Any, analysis_frame: pd.DataFrame, abs_error_t
 
 
 def main() -> None:
-    RESULTS_DIR.mkdir(exist_ok=True)
+    for directory in [RESULTS_DIR, REPORTS_DIR]:
+        directory.mkdir(parents=True, exist_ok=True)
     frame = load_featured_data()
     split = chronological_split(frame)
 

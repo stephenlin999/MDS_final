@@ -70,6 +70,12 @@ Report-ready error diagnostics and baseline ladder:
 python scripts/diagnostics/model_diagnostics_report.py
 ```
 
+Overfitting and full-range distribution-shift check:
+
+```bash
+python scripts/diagnostics/overfitting_shift_check.py
+```
+
 Seasonal extrapolation check:
 
 ```bash
@@ -84,11 +90,21 @@ MC_FUTURE_START=2026-05-16 MC_SIMULATIONS=1000 python scripts/diagnostics/monte_
 
 Generated plot PNG files are ignored by git. Regenerate them locally when needed.
 
+## For Optimization Teammates
+
+The main handoff file for MILP is:
+
+```text
+model_results/forecast/milp_solar_forecast_hourly.csv
+```
+
+Use `solar_q10_wh` for conservative scheduling and `solar_point_wh` for the point forecast.
+
 ## Current Results
 
 | Component | Main Result |
 |-----------|-------------|
-| Point forecast | R2 0.8599, nRMSE 9.02%, MAPE 36.10% |
+| Point forecast | R2 0.8599, nRMSE 9.02%, mean MAPE 36.10%, median APE 17.42% |
 | q10 lower bound | 89.07% actual coverage against 90% target |
 | Monte Carlo backtest | p10-p90 interval coverage 79.85%; diagnostic only |
 | MILP prototype | Representative sunny/cloudy/surplus days solve successfully |
@@ -108,6 +124,9 @@ MDS_final/
 │   ├── train_quantile_model.py
 │   ├── milp_daily_schedule.py
 │   └── diagnostics/
+│       ├── model_diagnostics_report.py
+│       ├── overfitting_shift_check.py
+│       ├── extrapolation_check.py
 │       ├── monte_carlo_backtest.py
 │       └── monte_carlo_yearly_solar.py
 ├── docs/
@@ -115,13 +134,22 @@ MDS_final/
 │   ├── results.md
 │   └── monte_carlo_note.md
 └── model_results/
-    ├── metrics.json
-    ├── quantile_coverage.json
-    ├── predictions_test.csv
-    ├── predictions_quantile_q10.csv
-    ├── milp_solar_forecast_hourly.csv
-    ├── monte_carlo_backtest/
-    └── monte_carlo_year/
+    ├── README.md
+    ├── forecast/
+    │   ├── predictions_test.csv
+    │   ├── predictions_quantile_q10.csv
+    │   └── milp_solar_forecast_hourly.csv
+    ├── milp/
+    │   ├── schedules/
+    │   └── summaries/
+    ├── reports/
+    │   ├── metrics.json
+    │   ├── quantile_coverage.json
+    │   └── *.csv / *.json diagnostics
+    ├── monte_carlo/
+    │   ├── backtest/
+    │   └── yearly_projection/
+    └── plots/              # ignored by git
 ```
 
 ## Output Policy

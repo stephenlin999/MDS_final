@@ -57,11 +57,11 @@
     "mean_interval_width_wh": 67936.36733759908
   },
   "outputs": {
-    "daily_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_backtest/monte_carlo_backtest_daily.csv",
-    "summary_json": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_backtest/monte_carlo_backtest_summary.json",
-    "timeseries_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_backtest/backtest_daily_timeseries.png",
-    "scatter_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_backtest/backtest_actual_vs_prediction.png",
-    "residual_by_month_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_backtest/backtest_residual_by_month.png",
-    "interval_coverage_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_backtest/backtest_interval_coverage.png"
+    "daily_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo/backtest/monte_carlo_backtest_daily.csv",
+    "summary_json": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo/backtest/monte_carlo_backtest_summary.json",
+    "timeseries_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/monte_carlo/backtest/backtest_daily_timeseries.png",
+    "scatter_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/monte_carlo/backtest/backtest_actual_vs_prediction.png",
+    "residual_by_month_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/monte_carlo/backtest/backtest_residual_by_month.png",
+    "interval_coverage_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/monte_carlo/backtest/backtest_interval_coverage.png"
   }
 }

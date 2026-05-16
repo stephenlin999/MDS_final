@@ -5,8 +5,8 @@ Train only on 2017 Jan-Jun and evaluate on 2017 Jul-Dec. This tests whether the
 forecast-strict feature set generalizes to unseen later-year seasonal patterns.
 
 Outputs:
-  model_results/extrapolation_check_2017.csv
-  model_results/extrapolation_check_2017.json
+  model_results/reports/extrapolation_check_2017.csv
+  model_results/reports/extrapolation_check_2017.json
 """
 from __future__ import annotations
 
@@ -35,6 +35,7 @@ from train_xgboost_pipeline import (
     FIXED_TUNED_PARAMS,
     PRIMARY_FEATURES,
     RANDOM_STATE,
+    REPORTS_DIR,
     RESULTS_DIR,
     TARGET_COLUMN,
     clip_predictions,
@@ -46,8 +47,8 @@ from train_xgboost_pipeline import (
 )
 
 
-SUMMARY_CSV = RESULTS_DIR / "extrapolation_check_2017.csv"
-SUMMARY_JSON = RESULTS_DIR / "extrapolation_check_2017.json"
+SUMMARY_CSV = REPORTS_DIR / "extrapolation_check_2017.csv"
+SUMMARY_JSON = REPORTS_DIR / "extrapolation_check_2017.json"
 
 
 def fit_linear(train: pd.DataFrame, test: pd.DataFrame) -> np.ndarray:
@@ -84,7 +85,8 @@ def split_2017(frame: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def run_check() -> dict[str, Any]:
-    RESULTS_DIR.mkdir(exist_ok=True)
+    for directory in [RESULTS_DIR, REPORTS_DIR]:
+        directory.mkdir(parents=True, exist_ok=True)
     frame = load_featured_data()
     observed_capacity_wh = float(frame[TARGET_COLUMN].max())
     train, test = split_2017(frame)

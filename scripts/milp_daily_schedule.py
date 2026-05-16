@@ -58,7 +58,11 @@ import pandas as pd
 import pulp
 
 RESULTS_DIR = PROJECT_DIR / "model_results"
-MILP_HOURLY_PATH = RESULTS_DIR / "milp_solar_forecast_hourly.csv"
+FORECAST_DIR = RESULTS_DIR / "forecast"
+MILP_DIR = RESULTS_DIR / "milp"
+MILP_SCHEDULE_DIR = MILP_DIR / "schedules"
+MILP_SUMMARY_DIR = MILP_DIR / "summaries"
+MILP_HOURLY_PATH = FORECAST_DIR / "milp_solar_forecast_hourly.csv"
 
 # ── Battery parameters ───────────────────────────────────────────────────────
 E_CAP_WH        = 30_000.0   # total capacity [Wh]
@@ -241,7 +245,7 @@ def save_schedule(
             "dp_excess_wh": np.round(result["dp_excess_wh"], 1),
         }
     )
-    out_path = RESULTS_DIR / f"milp_schedule_{target_date}.csv"
+    out_path = MILP_SCHEDULE_DIR / f"milp_schedule_{target_date}.csv"
     schedule.to_csv(out_path, index=False)
     return out_path
 
@@ -292,7 +296,7 @@ def run_day(target_date: str) -> tuple[dict, dict]:
             "P_contract_wh":    P_CONTRACT_WH,
         },
     }
-    summary_path = RESULTS_DIR / f"milp_summary_{target_date}.json"
+    summary_path = MILP_SUMMARY_DIR / f"milp_summary_{target_date}.json"
     summary_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     return summary, result
 
@@ -341,7 +345,8 @@ def print_day_report(target_date: str, summary: dict, result: dict) -> None:
 
 def main() -> None:
     import sys
-    RESULTS_DIR.mkdir(exist_ok=True)
+    for directory in [RESULTS_DIR, FORECAST_DIR, MILP_SCHEDULE_DIR, MILP_SUMMARY_DIR]:
+        directory.mkdir(parents=True, exist_ok=True)
 
     test_days = [
         ("2022-06-03", "sunny — nominal case"),

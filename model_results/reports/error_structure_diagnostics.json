@@ -651,7 +651,7 @@
     "SHAP indicates that short-term persistence, clear-sky theoretical irradiance, recent variability, clouds_all, and lagged clear-sky index are the key drivers; this supports the interpretation that remaining error comes from weather-state ambiguity rather than an obvious leakage or split bug."
   ],
   "outputs": {
-    "model_comparison_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/model_comparison.csv",
-    "error_structure_diagnostics_json": "/Users/stephenlin/Downloads/MDS_final/model_results/error_structure_diagnostics.json"
+    "model_comparison_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/reports/model_comparison.csv",
+    "error_structure_diagnostics_json": "/Users/stephenlin/Downloads/MDS_final/model_results/reports/error_structure_diagnostics.json"
   }
 }

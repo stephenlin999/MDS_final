@@ -15,14 +15,17 @@ PROJECT_DIR = Path(__file__).resolve().parents[1]
 LOCAL_PACKAGE_DIR = PROJECT_DIR / ".python_packages"
 FEATURED_PATH = PROJECT_DIR / "Renewable_featured.csv"
 RESULTS_DIR = PROJECT_DIR / "model_results"
-METRICS_PATH = RESULTS_DIR / "metrics.json"
-PREDICTIONS_PATH = RESULTS_DIR / "predictions_test.csv"
-SHAP_SUMMARY_PATH = RESULTS_DIR / "shap_summary.png"
-SHAP_IMPORTANCE_PATH = RESULTS_DIR / "shap_importance.csv"
-PREDICTION_SCATTER_PATH = RESULTS_DIR / "prediction_scatter_tuned.png"
-RESIDUAL_BY_MONTH_PATH = RESULTS_DIR / "residual_by_month.png"
-RESIDUAL_BY_TARGET_BIN_PATH = RESULTS_DIR / "residual_by_target_bin.png"
-APE_BY_TARGET_BIN_PATH = RESULTS_DIR / "ape_by_target_bin.png"
+FORECAST_DIR = RESULTS_DIR / "forecast"
+REPORTS_DIR = RESULTS_DIR / "reports"
+PLOTS_DIR = RESULTS_DIR / "plots" / "diagnostics"
+METRICS_PATH = REPORTS_DIR / "metrics.json"
+PREDICTIONS_PATH = FORECAST_DIR / "predictions_test.csv"
+SHAP_SUMMARY_PATH = PLOTS_DIR / "shap_summary.png"
+SHAP_IMPORTANCE_PATH = REPORTS_DIR / "shap_importance.csv"
+PREDICTION_SCATTER_PATH = PLOTS_DIR / "prediction_scatter_tuned.png"
+RESIDUAL_BY_MONTH_PATH = PLOTS_DIR / "residual_by_month.png"
+RESIDUAL_BY_TARGET_BIN_PATH = PLOTS_DIR / "residual_by_target_bin.png"
+APE_BY_TARGET_BIN_PATH = PLOTS_DIR / "ape_by_target_bin.png"
 
 TARGET_COLUMN = "Energy delta[Wh]"
 BASELINE_COLUMN = "energy_delta_lag_1d"
@@ -106,7 +109,8 @@ def add_local_packages_to_path() -> None:
 
 def load_model_libraries():
     add_local_packages_to_path()
-    RESULTS_DIR.mkdir(exist_ok=True)
+    for directory in [RESULTS_DIR, FORECAST_DIR, REPORTS_DIR, PLOTS_DIR]:
+        directory.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("MPLCONFIGDIR", str(RESULTS_DIR / "matplotlib_cache"))
 
     import matplotlib
@@ -445,7 +449,8 @@ def save_json(path: Path, payload: dict[str, Any]) -> None:
 def run_pipeline() -> dict[str, Any]:
     libs = load_model_libraries()
     XGBRegressor = libs["XGBRegressor"]
-    RESULTS_DIR.mkdir(exist_ok=True)
+    for directory in [RESULTS_DIR, FORECAST_DIR, REPORTS_DIR, PLOTS_DIR]:
+        directory.mkdir(parents=True, exist_ok=True)
 
     frame = load_featured_data()
     observed_capacity_wh = float(frame[TARGET_COLUMN].max())

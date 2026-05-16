@@ -110,7 +110,7 @@
     "A performance drop versus the main full-history test is expected because the model is trained on only half a year."
   ],
   "outputs": {
-    "summary_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/extrapolation_check_2017.csv",
-    "summary_json": "/Users/stephenlin/Downloads/MDS_final/model_results/extrapolation_check_2017.json"
+    "summary_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/reports/extrapolation_check_2017.csv",
+    "summary_json": "/Users/stephenlin/Downloads/MDS_final/model_results/reports/extrapolation_check_2017.json"
   }
 }

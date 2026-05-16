@@ -27,12 +27,12 @@
     "p95": 13104.37968896141
   },
   "outputs": {
-    "daily_summary_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/monte_carlo_daily_summary.csv",
-    "monthly_summary_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/monte_carlo_monthly_summary.csv",
-    "annual_scenarios_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/monte_carlo_annual_scenarios.csv",
-    "annual_histogram_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/annual_total_distribution.png",
-    "monthly_fan_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/monthly_energy_fan.png",
-    "daily_fan_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/daily_energy_fan.png",
-    "expected_monthly_bar_png": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo_year/expected_monthly_energy.png"
+    "daily_summary_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo/yearly_projection/monte_carlo_daily_summary.csv",
+    "monthly_summary_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo/yearly_projection/monte_carlo_monthly_summary.csv",
+    "annual_scenarios_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/monte_carlo/yearly_projection/monte_carlo_annual_scenarios.csv",
+    "annual_histogram_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/monte_carlo/yearly_projection/annual_total_distribution.png",
+    "monthly_fan_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/monte_carlo/yearly_projection/monthly_energy_fan.png",
+    "daily_fan_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/monte_carlo/yearly_projection/daily_energy_fan.png",
+    "expected_monthly_bar_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/monte_carlo/yearly_projection/expected_monthly_energy.png"
   }
 }

@@ -940,14 +940,14 @@
     }
   },
   "outputs": {
-    "metrics_json": "/Users/stephenlin/Downloads/MDS_final/model_results/metrics.json",
-    "predictions_test_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/predictions_test.csv",
-    "shap_summary_png": "/Users/stephenlin/Downloads/MDS_final/model_results/shap_summary.png",
-    "shap_importance_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/shap_importance.csv",
-    "prediction_scatter_tuned_png": "/Users/stephenlin/Downloads/MDS_final/model_results/prediction_scatter_tuned.png",
-    "residual_by_month_png": "/Users/stephenlin/Downloads/MDS_final/model_results/residual_by_month.png",
-    "residual_by_target_bin_png": "/Users/stephenlin/Downloads/MDS_final/model_results/residual_by_target_bin.png",
-    "ape_by_target_bin_png": "/Users/stephenlin/Downloads/MDS_final/model_results/ape_by_target_bin.png"
+    "metrics_json": "/Users/stephenlin/Downloads/MDS_final/model_results/reports/metrics.json",
+    "predictions_test_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/forecast/predictions_test.csv",
+    "shap_summary_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/diagnostics/shap_summary.png",
+    "shap_importance_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/reports/shap_importance.csv",
+    "prediction_scatter_tuned_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/diagnostics/prediction_scatter_tuned.png",
+    "residual_by_month_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/diagnostics/residual_by_month.png",
+    "residual_by_target_bin_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/diagnostics/residual_by_target_bin.png",
+    "ape_by_target_bin_png": "/Users/stephenlin/Downloads/MDS_final/model_results/plots/diagnostics/ape_by_target_bin.png"
   },
   "shap": {
     "status": "completed",

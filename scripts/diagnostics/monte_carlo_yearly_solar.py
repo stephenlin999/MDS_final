@@ -7,7 +7,7 @@ with a similar day-of-year. Historical analogue profiles are first converted
 through the existing forecast-strict XGBoost point and q10 models.
 
 Outputs are written to:
-  model_results/monte_carlo_year/
+  model_results/monte_carlo/yearly_projection/
 """
 from __future__ import annotations
 
@@ -27,7 +27,8 @@ LOCAL_PACKAGE_DIR = PROJECT_DIR / ".python_packages"
 sys.path.insert(0, str(LOCAL_PACKAGE_DIR))
 sys.path.insert(0, str(SCRIPTS_DIR))
 RESULTS_DIR = PROJECT_DIR / "model_results"
-MC_DIR = RESULTS_DIR / "monte_carlo_year"
+MC_DIR = RESULTS_DIR / "monte_carlo" / "yearly_projection"
+PLOTS_DIR = RESULTS_DIR / "plots" / "monte_carlo" / "yearly_projection"
 os.environ.setdefault("MPLCONFIGDIR", str(RESULTS_DIR / "matplotlib_cache"))
 
 import matplotlib
@@ -223,10 +224,10 @@ def write_summary(daily: pd.DataFrame, monthly: pd.DataFrame, annual: pd.DataFra
             "daily_summary_csv": str(MC_DIR / "monte_carlo_daily_summary.csv"),
             "monthly_summary_csv": str(MC_DIR / "monte_carlo_monthly_summary.csv"),
             "annual_scenarios_csv": str(MC_DIR / "monte_carlo_annual_scenarios.csv"),
-            "annual_histogram_png": str(MC_DIR / "annual_total_distribution.png"),
-            "monthly_fan_png": str(MC_DIR / "monthly_energy_fan.png"),
-            "daily_fan_png": str(MC_DIR / "daily_energy_fan.png"),
-            "expected_monthly_bar_png": str(MC_DIR / "expected_monthly_energy.png"),
+            "annual_histogram_png": str(PLOTS_DIR / "annual_total_distribution.png"),
+            "monthly_fan_png": str(PLOTS_DIR / "monthly_energy_fan.png"),
+            "daily_fan_png": str(PLOTS_DIR / "daily_energy_fan.png"),
+            "expected_monthly_bar_png": str(PLOTS_DIR / "expected_monthly_energy.png"),
         },
     }
     (MC_DIR / "monte_carlo_summary.json").write_text(
@@ -237,7 +238,7 @@ def write_summary(daily: pd.DataFrame, monthly: pd.DataFrame, annual: pd.DataFra
 
 
 def make_plots(daily: pd.DataFrame, monthly: pd.DataFrame, annual: pd.DataFrame) -> None:
-    MC_DIR.mkdir(parents=True, exist_ok=True)
+    PLOTS_DIR.mkdir(parents=True, exist_ok=True)
 
     plt.figure(figsize=(8, 5))
     plt.hist(annual["annual_point_kwh"], bins=30, alpha=0.7, label="Point forecast")
@@ -247,7 +248,7 @@ def make_plots(daily: pd.DataFrame, monthly: pd.DataFrame, annual: pd.DataFrame)
     plt.title("Monte Carlo Annual Solar Generation Distribution")
     plt.legend()
     plt.tight_layout()
-    plt.savefig(MC_DIR / "annual_total_distribution.png", dpi=200, bbox_inches="tight")
+    plt.savefig(PLOTS_DIR / "annual_total_distribution.png", dpi=200, bbox_inches="tight")
     plt.close()
 
     x = monthly["month"].to_numpy()
@@ -261,7 +262,7 @@ def make_plots(daily: pd.DataFrame, monthly: pd.DataFrame, annual: pd.DataFrame)
     plt.xticks(range(1, 13))
     plt.legend()
     plt.tight_layout()
-    plt.savefig(MC_DIR / "monthly_energy_fan.png", dpi=200, bbox_inches="tight")
+    plt.savefig(PLOTS_DIR / "monthly_energy_fan.png", dpi=200, bbox_inches="tight")
     plt.close()
 
     plt.figure(figsize=(9, 5))
@@ -273,7 +274,7 @@ def make_plots(daily: pd.DataFrame, monthly: pd.DataFrame, annual: pd.DataFrame)
     plt.xticks(range(1, 13))
     plt.legend()
     plt.tight_layout()
-    plt.savefig(MC_DIR / "expected_monthly_energy.png", dpi=200, bbox_inches="tight")
+    plt.savefig(PLOTS_DIR / "expected_monthly_energy.png", dpi=200, bbox_inches="tight")
     plt.close()
 
     plot_daily = daily.copy()
@@ -287,12 +288,13 @@ def make_plots(daily: pd.DataFrame, monthly: pd.DataFrame, annual: pd.DataFrame)
     plt.title("Daily Monte Carlo Forecast Fan")
     plt.legend()
     plt.tight_layout()
-    plt.savefig(MC_DIR / "daily_energy_fan.png", dpi=200, bbox_inches="tight")
+    plt.savefig(PLOTS_DIR / "daily_energy_fan.png", dpi=200, bbox_inches="tight")
     plt.close()
 
 
 def main() -> None:
-    MC_DIR.mkdir(parents=True, exist_ok=True)
+    for directory in [MC_DIR, PLOTS_DIR]:
+        directory.mkdir(parents=True, exist_ok=True)
 
     print("Loading featured data...")
     frame = load_featured_data()

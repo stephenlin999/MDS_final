@@ -10,7 +10,7 @@ The analogue pool is restricted to the development period. Test days are never
 used to choose analogue days or train models.
 
 Outputs are written to:
-  model_results/monte_carlo_backtest/
+  model_results/monte_carlo/backtest/
 """
 from __future__ import annotations
 
@@ -30,7 +30,8 @@ sys.path.insert(0, str(LOCAL_PACKAGE_DIR))
 sys.path.insert(0, str(SCRIPTS_DIR))
 
 RESULTS_DIR = PROJECT_DIR / "model_results"
-BACKTEST_DIR = RESULTS_DIR / "monte_carlo_backtest"
+BACKTEST_DIR = RESULTS_DIR / "monte_carlo" / "backtest"
+PLOTS_DIR = RESULTS_DIR / "plots" / "monte_carlo" / "backtest"
 os.environ.setdefault("MPLCONFIGDIR", str(RESULTS_DIR / "matplotlib_cache"))
 
 import matplotlib
@@ -204,17 +205,17 @@ def summarize(backtest: pd.DataFrame, split_info: dict) -> dict:
         "outputs": {
             "daily_csv": str(BACKTEST_DIR / "monte_carlo_backtest_daily.csv"),
             "summary_json": str(BACKTEST_DIR / "monte_carlo_backtest_summary.json"),
-            "timeseries_png": str(BACKTEST_DIR / "backtest_daily_timeseries.png"),
-            "scatter_png": str(BACKTEST_DIR / "backtest_actual_vs_prediction.png"),
-            "residual_by_month_png": str(BACKTEST_DIR / "backtest_residual_by_month.png"),
-            "interval_coverage_png": str(BACKTEST_DIR / "backtest_interval_coverage.png"),
+            "timeseries_png": str(PLOTS_DIR / "backtest_daily_timeseries.png"),
+            "scatter_png": str(PLOTS_DIR / "backtest_actual_vs_prediction.png"),
+            "residual_by_month_png": str(PLOTS_DIR / "backtest_residual_by_month.png"),
+            "interval_coverage_png": str(PLOTS_DIR / "backtest_interval_coverage.png"),
         },
     }
     return summary
 
 
 def make_plots(backtest: pd.DataFrame) -> None:
-    BACKTEST_DIR.mkdir(parents=True, exist_ok=True)
+    PLOTS_DIR.mkdir(parents=True, exist_ok=True)
     dates = pd.to_datetime(backtest["date"])
 
     plt.figure(figsize=(12, 5))
@@ -233,7 +234,7 @@ def make_plots(backtest: pd.DataFrame) -> None:
     plt.title("Monte Carlo Backtest: Daily Actual vs Forecast")
     plt.legend()
     plt.tight_layout()
-    plt.savefig(BACKTEST_DIR / "backtest_daily_timeseries.png", dpi=200, bbox_inches="tight")
+    plt.savefig(PLOTS_DIR / "backtest_daily_timeseries.png", dpi=200, bbox_inches="tight")
     plt.close()
 
     limit = float(max(backtest["actual_wh"].max(), backtest["direct_point_wh"].max(), backtest["mc_mean_point_wh"].max()))
@@ -246,7 +247,7 @@ def make_plots(backtest: pd.DataFrame) -> None:
     plt.title("Backtest Actual vs Prediction")
     plt.legend()
     plt.tight_layout()
-    plt.savefig(BACKTEST_DIR / "backtest_actual_vs_prediction.png", dpi=200, bbox_inches="tight")
+    plt.savefig(PLOTS_DIR / "backtest_actual_vs_prediction.png", dpi=200, bbox_inches="tight")
     plt.close()
 
     residuals = backtest.copy()
@@ -269,7 +270,7 @@ def make_plots(backtest: pd.DataFrame) -> None:
     plt.title("Backtest Residual by Month")
     plt.legend()
     plt.tight_layout()
-    plt.savefig(BACKTEST_DIR / "backtest_residual_by_month.png", dpi=200, bbox_inches="tight")
+    plt.savefig(PLOTS_DIR / "backtest_residual_by_month.png", dpi=200, bbox_inches="tight")
     plt.close()
 
     covered = (
@@ -287,12 +288,13 @@ def make_plots(backtest: pd.DataFrame) -> None:
     plt.title("Monte Carlo p10-p90 Interval Coverage by Month")
     plt.legend()
     plt.tight_layout()
-    plt.savefig(BACKTEST_DIR / "backtest_interval_coverage.png", dpi=200, bbox_inches="tight")
+    plt.savefig(PLOTS_DIR / "backtest_interval_coverage.png", dpi=200, bbox_inches="tight")
     plt.close()
 
 
 def main() -> None:
-    BACKTEST_DIR.mkdir(parents=True, exist_ok=True)
+    for directory in [BACKTEST_DIR, PLOTS_DIR]:
+        directory.mkdir(parents=True, exist_ok=True)
 
     print("Loading featured data...")
     frame = load_featured_data()
