@@ -64,6 +64,18 @@ Monte Carlo backtest:
 MC_BACKTEST_SIMULATIONS=1000 python scripts/diagnostics/monte_carlo_backtest.py
 ```
 
+Report-ready error diagnostics and baseline ladder:
+
+```bash
+python scripts/diagnostics/model_diagnostics_report.py
+```
+
+Seasonal extrapolation check:
+
+```bash
+python scripts/diagnostics/extrapolation_check.py
+```
+
 Next-year Monte Carlo projection:
 
 ```bash

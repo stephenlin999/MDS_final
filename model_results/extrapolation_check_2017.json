@@ -1,0 +1,116 @@
+{
+  "method": "Seasonal extrapolation check: train on 2017 Jan-Jun, test on 2017 Jul-Dec.",
+  "purpose": "Check whether the model over-relies on seasonal patterns seen during training.",
+  "random_state": 42,
+  "train": {
+    "rows": 17280,
+    "metric_rows": 8686,
+    "start": "2017-01-02T00:00:00",
+    "end": "2017-06-30T23:45:00"
+  },
+  "test": {
+    "rows": 17664,
+    "metric_rows": 7917,
+    "start": "2017-07-01T00:00:00",
+    "end": "2017-12-31T23:45:00"
+  },
+  "comparison": [
+    {
+      "model": "Persistence: previous-day same time",
+      "rows": 7917,
+      "mape": 121.0740843960383,
+      "r2": 0.04303871053282793,
+      "rmse_wh": 1106.3319344791837,
+      "mae_wh": 701.8533535430087,
+      "bias_wh": -27.357711254262977,
+      "corr": 0.5202696855373363,
+      "nrmse_observed_capacity_pct": 22.03848475058135
+    },
+    {
+      "model": "Linear regression",
+      "rows": 7917,
+      "mape": 83.55969262301383,
+      "r2": 0.7560063916216779,
+      "rmse_wh": 558.6341592362772,
+      "mae_wh": 390.9110924336931,
+      "bias_wh": 64.19013787103971,
+      "corr": 0.8714777981025945,
+      "nrmse_observed_capacity_pct": 11.128170502714687
+    },
+    {
+      "model": "XGBoost default",
+      "rows": 7917,
+      "mape": 48.17235709221219,
+      "r2": 0.7582986922171816,
+      "rmse_wh": 556.003804858888,
+      "mae_wh": 339.60980820358816,
+      "bias_wh": -9.78792107333751,
+      "corr": 0.8732309186235637,
+      "nrmse_observed_capacity_pct": 11.075773005157131
+    },
+    {
+      "model": "XGBoost tuned fixed params",
+      "rows": 7917,
+      "mape": 46.06559701074776,
+      "r2": 0.787269878474844,
+      "rmse_wh": 521.6182256893416,
+      "mae_wh": 316.7634758021444,
+      "bias_wh": -5.3283509666967594,
+      "corr": 0.8878845019413918,
+      "nrmse_observed_capacity_pct": 10.39080130855262
+    }
+  ],
+  "tuned_monthly_test": [
+    {
+      "month": 7,
+      "rows": 1935,
+      "mape": 37.716175909081315,
+      "mae_wh": 319.03249567171093,
+      "bias_wh": 24.38487470014459
+    },
+    {
+      "month": 8,
+      "rows": 1693,
+      "mape": 35.07794677625103,
+      "mae_wh": 372.9275641758204,
+      "bias_wh": -45.8312805394625
+    },
+    {
+      "month": 9,
+      "rows": 1439,
+      "mape": 43.29950495687414,
+      "mae_wh": 361.0187448537375,
+      "bias_wh": -25.475780786616344
+    },
+    {
+      "month": 10,
+      "rows": 1138,
+      "mape": 48.329208919894285,
+      "mae_wh": 294.2615017233079,
+      "bias_wh": -12.833663461497462
+    },
+    {
+      "month": 11,
+      "rows": 911,
+      "mape": 60.83244969750251,
+      "mae_wh": 243.82222098628986,
+      "bias_wh": 6.64695839013017
+    },
+    {
+      "month": 12,
+      "rows": 801,
+      "mape": 74.41770062374322,
+      "mae_wh": 227.99573848563037,
+      "bias_wh": 41.73788924208294
+    }
+  ],
+  "interpretation": [
+    "This is stricter than the main chronological split because the model has not seen Jul-Dec seasonal patterns in training.",
+    "If tuned XGBoost remains far above persistence and linear regression, the feature set has reasonable seasonal extrapolation ability.",
+    "A performance drop versus the main full-history test is expected because the model is trained on only half a year."
+  ],
+  "outputs": {
+    "summary_csv": "/Users/stephenlin/Downloads/MDS_final/model_results/extrapolation_check_2017.csv",
+    "summary_json": "/Users/stephenlin/Downloads/MDS_final/model_results/extrapolation_check_2017.json"
+  }
+}
