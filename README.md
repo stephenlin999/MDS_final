@@ -1,4 +1,4 @@
-# Solar Power Forecasting + Battery Dispatch Optimization
+# Solar Power Forecasting
 
 This project forecasts solar PV generation and uses the forecast to schedule a battery storage system with Mixed-Integer Linear Programming (MILP).
 
