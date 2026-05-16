@@ -23,9 +23,11 @@ import numpy as np
 import pandas as pd
 
 
-PROJECT_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = Path(__file__).resolve().parents[2]
+SCRIPTS_DIR = PROJECT_DIR / "scripts"
 LOCAL_PACKAGE_DIR = PROJECT_DIR / ".python_packages"
 sys.path.insert(0, str(LOCAL_PACKAGE_DIR))
+sys.path.insert(0, str(SCRIPTS_DIR))
 
 RESULTS_DIR = PROJECT_DIR / "model_results"
 BACKTEST_DIR = RESULTS_DIR / "monte_carlo_backtest"

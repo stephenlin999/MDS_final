@@ -7,8 +7,9 @@ import numpy as np
 import pandas as pd
 
 
-INPUT_PATH = Path(__file__).with_name("Renewable.csv")
-OUTPUT_PATH = Path(__file__).with_name("Renewable_cleaned.csv")
+PROJECT_DIR = Path(__file__).resolve().parents[1]
+INPUT_PATH = PROJECT_DIR / "Renewable.csv"
+OUTPUT_PATH = PROJECT_DIR / "Renewable_cleaned.csv"
 SHORT_GAP_LIMIT = 8  # 15-minute data => up to 2 hours uses time interpolation.
 
 CONTINUOUS_COLUMNS = [

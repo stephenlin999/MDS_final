@@ -43,17 +43,17 @@ Python 3.10+ is recommended. XGBoost >= 2.0.0 is required for quantile regressio
 Run from the project root.
 
 ```bash
-python clean_renewable.py
-python engineer_renewable_features.py
-USE_FIXED_PARAMS=1 python train_xgboost_pipeline.py
-python train_quantile_model.py
-python milp_daily_schedule.py
+python scripts/clean_renewable.py
+python scripts/engineer_renewable_features.py
+USE_FIXED_PARAMS=1 python scripts/train_xgboost_pipeline.py
+python scripts/train_quantile_model.py
+python scripts/milp_daily_schedule.py
 ```
 
 To run full Optuna tuning instead of fixed tuned parameters:
 
 ```bash
-python train_xgboost_pipeline.py
+python scripts/train_xgboost_pipeline.py
 ```
 
 ## Optional Diagnostics
@@ -61,13 +61,13 @@ python train_xgboost_pipeline.py
 Monte Carlo backtest:
 
 ```bash
-MC_BACKTEST_SIMULATIONS=1000 python monte_carlo_backtest.py
+MC_BACKTEST_SIMULATIONS=1000 python scripts/diagnostics/monte_carlo_backtest.py
 ```
 
 Next-year Monte Carlo projection:
 
 ```bash
-MC_FUTURE_START=2026-05-16 MC_SIMULATIONS=1000 python monte_carlo_yearly_solar.py
+MC_FUTURE_START=2026-05-16 MC_SIMULATIONS=1000 python scripts/diagnostics/monte_carlo_yearly_solar.py
 ```
 
 Generated plot PNG files are ignored by git. Regenerate them locally when needed.
@@ -89,13 +89,15 @@ See [Results](docs/results.md) for the full tables and interpretation.
 MDS_final/
 ├── README.md
 ├── requirements.txt
-├── clean_renewable.py
-├── engineer_renewable_features.py
-├── train_xgboost_pipeline.py
-├── train_quantile_model.py
-├── milp_daily_schedule.py
-├── monte_carlo_backtest.py
-├── monte_carlo_yearly_solar.py
+├── scripts/
+│   ├── clean_renewable.py
+│   ├── engineer_renewable_features.py
+│   ├── train_xgboost_pipeline.py
+│   ├── train_quantile_model.py
+│   ├── milp_daily_schedule.py
+│   └── diagnostics/
+│       ├── monte_carlo_backtest.py
+│       └── monte_carlo_yearly_solar.py
 ├── docs/
 │   ├── methodology.md
 │   ├── results.md

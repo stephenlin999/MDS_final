@@ -10,8 +10,9 @@ import pandas as pd
 from clean_renewable import INPUT_PATH, OUTPUT_PATH as CLEANED_PATH, clean_dataset
 
 
-FEATURE_OUTPUT_PATH = Path(__file__).with_name("Renewable_featured.csv")
-LOCAL_PACKAGE_DIR = Path(__file__).with_name(".python_packages")
+PROJECT_DIR = Path(__file__).resolve().parents[1]
+FEATURE_OUTPUT_PATH = PROJECT_DIR / "Renewable_featured.csv"
+LOCAL_PACKAGE_DIR = PROJECT_DIR / ".python_packages"
 STEPS_PER_HOUR = 4
 STEPS_PER_3_HOURS = 12
 STEPS_PER_DAY = 96

@@ -49,7 +49,7 @@ import json
 import sys
 from pathlib import Path
 
-PROJECT_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = Path(__file__).resolve().parents[1]
 LOCAL_PACKAGE_DIR = PROJECT_DIR / ".python_packages"
 sys.path.insert(0, str(LOCAL_PACKAGE_DIR))
 
