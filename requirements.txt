@@ -7,3 +7,5 @@ shap>=0.42
 matplotlib>=3.7
 pvlib>=0.10
 pulp>=3.0
+pyomo>=6.9
+highspy>=1.12

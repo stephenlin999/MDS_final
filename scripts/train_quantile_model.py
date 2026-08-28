@@ -4,6 +4,7 @@ Phase 1 completion: train a 10th-percentile (q10) quantile XGBoost model.
 Same feature whitelist and hyperparameters as the tuned point-forecast model.
 Outputs:
   model_results/forecast/predictions_quantile_q10.csv   -- 15-min test-set predictions
+  model_results/forecast/milp_solar_forecast_15min.csv  -- 15-min MILP-ready forecast
   model_results/forecast/milp_solar_forecast_hourly.csv -- hourly MILP-ready forecast
   model_results/reports/quantile_coverage.json          -- coverage diagnostics
 """
@@ -36,6 +37,7 @@ from train_xgboost_pipeline import (
 )
 
 Q10_PREDICTIONS_PATH = FORECAST_DIR / "predictions_quantile_q10.csv"
+MILP_15MIN_PATH = FORECAST_DIR / "milp_solar_forecast_15min.csv"
 MILP_HOURLY_PATH = FORECAST_DIR / "milp_solar_forecast_hourly.csv"
 COVERAGE_PATH = REPORTS_DIR / "quantile_coverage.json"
 
@@ -114,6 +116,24 @@ def resample_to_hourly(
     return hourly
 
 
+def make_milp_15min_forecast(
+    frame: pd.DataFrame,
+    q10_col: str,
+    point_col: str,
+) -> pd.DataFrame:
+    """Format native 15-min Wh predictions for MILP handoff."""
+    forecast = frame[["Time", point_col, q10_col]].rename(
+        columns={
+            "Time": "timestamp",
+            point_col: "solar_point_wh",
+            q10_col: "solar_q10_wh",
+        }
+    )
+    forecast["solar_point_wh"] = forecast["solar_point_wh"].clip(lower=0)
+    forecast["solar_q10_wh"] = forecast["solar_q10_wh"].clip(lower=0)
+    return forecast
+
+
 def main() -> None:
     import os
     os.environ.setdefault("MPLCONFIGDIR", str(RESULTS_DIR / "matplotlib_cache"))
@@ -169,6 +189,13 @@ def main() -> None:
     )
     pred_frame.to_csv(Q10_PREDICTIONS_PATH, index=False)
     print(f"15-min predictions saved → {Q10_PREDICTIONS_PATH}")
+
+    # 15-min MILP-ready CSV
+    milp_15min = make_milp_15min_forecast(
+        pred_frame, "xgb_q10_pred", "xgb_tuned_pred"
+    )
+    milp_15min.to_csv(MILP_15MIN_PATH, index=False)
+    print(f"15-min MILP forecast saved → {MILP_15MIN_PATH}")
 
     # hourly MILP-ready CSV
     hourly = resample_to_hourly(pred_frame, "xgb_q10_pred", "xgb_tuned_pred")

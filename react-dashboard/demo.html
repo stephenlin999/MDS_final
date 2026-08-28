@@ -1,0 +1,1648 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>工廠用電與太陽能發電排程最佳化</title>
+    <style>
+      :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --ink: #0f172a;
+        --muted: #64748b;
+        --line: #e2e8f0;
+        --blue: #0052ff;
+        --blue-2: #4d7cff;
+        --green: #2d7d46;
+        --green-soft: #e9f8ee;
+        --red: #c0392b;
+        --red-soft: #fff0ed;
+        --orange: #f59e0b;
+        --shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+        --shadow-soft: 0 10px 28px rgba(15, 23, 42, 0.07);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 10% 0%, rgba(0, 82, 255, 0.1), transparent 28rem),
+          radial-gradient(circle at 90% 4%, rgba(77, 124, 255, 0.08), transparent 30rem),
+          linear-gradient(180deg, #f4f7ff 0, var(--bg) 24rem);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 56px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+        gap: 28px;
+        align-items: center;
+        padding: 24px 0 18px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        width: fit-content;
+        padding: 8px 16px;
+        border: 1px solid rgba(0, 82, 255, 0.24);
+        border-radius: 999px;
+        color: var(--blue);
+        background: rgba(255, 255, 255, 0.72);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        box-shadow: 0 8px 20px rgba(0, 82, 255, 0.08);
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--blue);
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 22px 0 14px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(42px, 7vw, 76px);
+        font-weight: 500;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+      }
+
+      .gradient-text {
+        background: linear-gradient(90deg, var(--blue), var(--blue-2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .lead {
+        max-width: 760px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 17px;
+        font-weight: 600;
+      }
+
+      .source {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 32px;
+        padding: 5px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.78);
+        color: var(--blue);
+      }
+
+      .hero-panel {
+        position: relative;
+        min-height: 260px;
+        border: 1px solid rgba(0, 82, 255, 0.18);
+        border-radius: 28px;
+        background:
+          radial-gradient(circle at 25% 20%, rgba(0, 82, 255, 0.12), transparent 12rem),
+          linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.58));
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .hero-panel::after {
+        content: "";
+        position: absolute;
+        inset: auto -15% -45% auto;
+        width: 320px;
+        height: 320px;
+        border: 1px dashed rgba(0, 82, 255, 0.22);
+        border-radius: 50%;
+      }
+
+      .mini-card {
+        position: absolute;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .mini-card.primary {
+        right: 36px;
+        top: 42px;
+        width: 240px;
+        padding: 22px;
+      }
+
+      .mini-card.secondary {
+        left: 34px;
+        bottom: 42px;
+        width: 250px;
+        padding: 20px;
+      }
+
+      .mini-label {
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .mini-value {
+        margin-top: 12px;
+        font-size: 32px;
+        font-weight: 800;
+      }
+
+      .mini-badge {
+        position: absolute;
+        right: 18px;
+        top: 18px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: var(--green-soft);
+        color: var(--green);
+        font-weight: 800;
+      }
+
+      .progress {
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #edf2f7;
+      }
+
+      .progress span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--green), var(--blue));
+      }
+
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin: 18px 0 22px;
+      }
+
+      .kpi {
+        min-height: 158px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--surface);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .kpi.red {
+        border-color: #ffd4cd;
+        background: linear-gradient(135deg, var(--red-soft), #fff);
+      }
+
+      .kpi.green {
+        border-color: #c8efd5;
+        background: linear-gradient(135deg, var(--green-soft), #fff);
+      }
+
+      .kpi.dark {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.08);
+        background:
+          radial-gradient(circle at 85% 10%, rgba(77, 124, 255, 0.28), transparent 9rem),
+          #111827;
+      }
+
+      .kpi.blue {
+        border-color: #cfe0ff;
+        background: linear-gradient(135deg, #eff5ff, #fff);
+      }
+
+      .kpi-title {
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .kpi.red .kpi-value {
+        color: var(--red);
+      }
+
+      .kpi.green .kpi-value {
+        color: var(--green);
+      }
+
+      .kpi.blue .kpi-value {
+        color: var(--blue);
+      }
+
+      .kpi.dark .kpi-title,
+      .kpi.dark .kpi-foot {
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .kpi-value {
+        margin-top: 12px;
+        font-size: clamp(32px, 4.4vw, 42px);
+        font-weight: 850;
+        line-height: 1;
+        letter-spacing: -0.03em;
+      }
+
+      .kpi-foot {
+        margin-top: 18px;
+        color: var(--muted);
+        font-weight: 650;
+      }
+
+      .tabs {
+        position: sticky;
+        top: 12px;
+        z-index: 5;
+        display: flex;
+        gap: 8px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: var(--shadow-soft);
+        backdrop-filter: blur(14px);
+      }
+
+      .tab {
+        min-height: 44px;
+        padding: 0 18px;
+        border: 0;
+        border-radius: 14px;
+        color: #475569;
+        background: transparent;
+        font-weight: 800;
+        cursor: pointer;
+        transition: 0.18s ease;
+      }
+
+      .tab:hover {
+        color: var(--blue);
+        background: #f3f7ff;
+      }
+
+      .tab.active {
+        color: #fff;
+        background: linear-gradient(135deg, var(--blue), var(--blue-2));
+        box-shadow: 0 10px 22px rgba(0, 82, 255, 0.22);
+      }
+
+      .panel {
+        display: none;
+        margin-top: 20px;
+      }
+
+      .panel.active {
+        display: block;
+      }
+
+      .section-head,
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
+        padding: 20px;
+      }
+
+      h2,
+      h3 {
+        margin: 0;
+        letter-spacing: -0.02em;
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+
+      h3 {
+        font-size: 18px;
+      }
+
+      .subtext {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+      }
+
+      .grid.two {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .grid.three {
+        grid-template-columns: 1.15fr 0.85fr;
+      }
+
+      .card {
+        overflow: hidden;
+      }
+
+      .card-head {
+        padding: 20px 22px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .card-body {
+        padding: 20px 22px 22px;
+      }
+
+      .chart {
+        width: 100%;
+        min-height: 320px;
+      }
+
+      .chart svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 14px;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .swatch {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+      }
+
+      select,
+      .input {
+        min-height: 44px;
+        padding: 0 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        color: var(--ink);
+        background: #fff;
+        font-weight: 700;
+      }
+
+      .toggle {
+        min-height: 38px;
+        padding: 0 13px;
+        border: 1px solid #d7e0ef;
+        border-radius: 999px;
+        color: #53657f;
+        background: #fff;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .toggle.active {
+        color: #fff;
+        border-color: transparent;
+        background: linear-gradient(135deg, var(--blue), var(--blue-2));
+      }
+
+      .metric-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .small-metric {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+      }
+
+      .small-metric .value {
+        margin-top: 8px;
+        font-size: 26px;
+        font-weight: 850;
+      }
+
+      .note {
+        margin-top: 14px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        color: #164e2a;
+        background: var(--green-soft);
+        font-weight: 700;
+      }
+
+      .dark-readout {
+        position: relative;
+        min-height: 100%;
+        padding: 28px;
+        overflow: hidden;
+        border-radius: 18px;
+        color: #fff;
+        background:
+          radial-gradient(circle at 82% 18%, rgba(77, 124, 255, 0.28), transparent 13rem),
+          radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px) 0 0 / 24px 24px,
+          #0f172a;
+        box-shadow: var(--shadow-soft);
+      }
+
+      .dark-readout .eyebrow {
+        background: rgba(255, 255, 255, 0.92);
+      }
+
+      .dark-number {
+        margin-top: 34px;
+        font-size: clamp(46px, 8vw, 72px);
+        font-weight: 850;
+        line-height: 0.95;
+      }
+
+      .risk-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .risk {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-weight: 850;
+      }
+
+      .status.green {
+        color: var(--green);
+        background: var(--green-soft);
+      }
+
+      .status.yellow {
+        color: #92400e;
+        background: #fef3c7;
+      }
+
+      .status.red {
+        color: var(--red);
+        background: var(--red-soft);
+      }
+
+      .slider-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: var(--blue);
+      }
+
+      .preview {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .preview-card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+      }
+
+      .preview-card strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 28px;
+      }
+
+      .calc-layout {
+        display: grid;
+        grid-template-columns: minmax(320px, 0.78fr) minmax(0, 1.22fr);
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .field-row {
+        display: grid;
+        grid-template-columns: 1fr minmax(140px, auto);
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      .formula-box {
+        margin-top: 16px;
+        padding: 14px;
+        border: 1px solid #dbeafe;
+        border-radius: 14px;
+        color: #1e3a8a;
+        background: #eff6ff;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .assumptions {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .assumption {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #f8fafc;
+        color: var(--muted);
+        font-weight: 750;
+      }
+
+      .scenario-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 16px;
+        padding: 16px;
+        border: 1px solid #bdebd0;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #ecfdf3, #ffffff);
+      }
+
+      .scenario-banner strong {
+        display: block;
+        color: var(--green);
+        font-size: 26px;
+        line-height: 1.1;
+      }
+
+      .chart-tip {
+        position: fixed;
+        z-index: 50;
+        display: none;
+        max-width: 280px;
+        padding: 12px 14px;
+        border: 1px solid rgba(203, 213, 225, 0.85);
+        border-radius: 14px;
+        color: #0f172a;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.16);
+        backdrop-filter: blur(12px);
+        font-size: 13px;
+        font-weight: 750;
+        line-height: 1.55;
+        pointer-events: none;
+      }
+
+      .chart-tip .tip-title {
+        color: var(--blue);
+        font-weight: 900;
+      }
+
+      .hotspot {
+        cursor: crosshair;
+        pointer-events: all;
+      }
+
+      .btn-primary {
+        width: 100%;
+        min-height: 48px;
+        border: 0;
+        border-radius: 14px;
+        color: #fff;
+        background: linear-gradient(135deg, var(--blue), var(--blue-2));
+        box-shadow: 0 14px 28px rgba(0, 82, 255, 0.24);
+        font-weight: 850;
+      }
+
+      .footer {
+        margin-top: 24px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      @media (max-width: 900px) {
+        .hero,
+        .grid.two,
+        .grid.three,
+        .calc-layout,
+        .kpis,
+        .metric-row,
+        .risk-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-panel {
+          min-height: 230px;
+        }
+
+        .tabs {
+          overflow-x: auto;
+        }
+
+        .tab {
+          flex: 0 0 auto;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .page {
+          width: min(100% - 22px, 1180px);
+          padding-top: 16px;
+        }
+
+        .mini-card.primary,
+        .mini-card.secondary {
+          position: static;
+          width: auto;
+          margin: 18px;
+        }
+
+        .hero-panel {
+          display: grid;
+          align-content: center;
+        }
+
+        .section-head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .preview {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <div>
+          <div class="eyebrow"><span class="dot"></span>Factory Energy Optimization</div>
+          <h1>數據分析驅動的工廠用電與太陽能發電 <span class="gradient-text">排程最佳化</span></h1>
+          <p class="lead">
+            整合用電負載、太陽能發電、電池儲能與契約容量，評估不同調度策略下的電費、節省幅度與超約風險。
+          </p>
+          <div class="source">
+            <span class="pill">資料：本地寫死 Demo</span>
+            <span class="pill">來源：EMS output 校準 + Monte Carlo 情境</span>
+          </div>
+        </div>
+
+        <div class="hero-panel" aria-label="Savings summary">
+          <div class="mini-card primary">
+            <span class="mini-badge">-24.9%</span>
+            <div class="mini-label">Monthly savings</div>
+            <div class="mini-value">NT$ 227,791</div>
+          </div>
+          <div class="mini-card secondary">
+            <div class="mini-label">PV utilization</div>
+            <div class="progress" style="margin: 16px 0 12px"><span style="width: 91.5%"></span></div>
+            <div class="mini-value" style="font-size: 28px">91.5%</div>
+          </div>
+        </div>
+      </header>
+
+      <section class="kpis" aria-label="Business metrics">
+        <article class="kpi red">
+          <div class="kpi-title">無系統每月電費</div>
+          <div class="kpi-value">NT$ 914,738</div>
+          <div class="kpi-foot">B1 無電池基準</div>
+        </article>
+        <article class="kpi green">
+          <div class="kpi-title">MILP 系統電費</div>
+          <div class="kpi-value">NT$ 686,947</div>
+          <div class="kpi-foot">本系統</div>
+        </article>
+        <article class="kpi dark">
+          <div class="kpi-title">每月節省</div>
+          <div class="kpi-value">NT$ 227,791</div>
+          <div class="kpi-foot">Advanced EMS vs B1</div>
+        </article>
+        <article class="kpi blue">
+          <div class="kpi-title">PV 利用率</div>
+          <div class="kpi-value">91.5%</div>
+          <div class="kpi-foot">再生能源使用效率</div>
+          <div class="progress" style="margin-top: 14px"><span style="width: 91.5%"></span></div>
+        </article>
+      </section>
+
+      <nav class="tabs" aria-label="Dashboard tabs">
+        <button class="tab active" data-tab="overview">總覽與節費</button>
+        <button class="tab" data-tab="execution">月調度執行</button>
+        <button class="tab" data-tab="decision">MILP 決策解釋</button>
+        <button class="tab" data-tab="risk">風險檢查 / 場景估算</button>
+      </nav>
+
+      <main>
+        <section class="panel active" id="overview">
+          <div class="grid two">
+            <article class="card">
+              <div class="card-head">
+                <h3>無系統 vs 有系統電費</h3>
+                <p class="subtext">這裡不用橋接圖，直接讓觀眾看見兩種方案的每月電費差距。</p>
+              </div>
+              <div class="card-body">
+                <div class="chart" id="costBars"></div>
+                <div class="note">Advanced EMS 與 B1 的月節省：NT$ 227,791。</div>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-head">
+                <h3>策略比較</h3>
+                <p class="subtext">依總成本由高到低排序；MILP 用綠色，高於 B1 的方案直接暴露風險。</p>
+              </div>
+              <div class="card-body">
+                <div class="chart" id="strategyBars"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="grid three" style="margin-top: 18px">
+            <article class="card">
+              <div class="card-head">
+                <h3>月成本拆解</h3>
+                <p class="subtext">灰色為 B1 baseline，綠色為 EMS 情境；未來月份以 Monte Carlo 校準。</p>
+              </div>
+              <div class="card-body">
+                <div class="chart" id="monthlyBars"></div>
+              </div>
+            </article>
+
+            <aside class="dark-readout">
+              <div class="eyebrow"><span class="dot"></span>EXECUTIVE READOUT</div>
+              <div class="dark-number" id="annualSavingText">NT$ 89.5萬</div>
+              <p style="color: rgba(255, 255, 255, 0.72); font-weight: 700">
+                年度預期節省採 P50 情境估算；7 月與 12 月採既有 EMS output，其餘月份用 Monte Carlo 情境抽樣。
+              </p>
+            </aside>
+          </div>
+
+          <article class="card" style="margin-top: 18px">
+            <div class="card-head">
+              <h3>Monte Carlo 年度節省投影</h3>
+              <p class="subtext">P10 / P50 / P90 呈現保守、中位與樂觀節省區間，不再把畫面綁定在歷史年份。</p>
+            </div>
+            <div class="card-body">
+              <div class="chart" id="annualProjection"></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel" id="execution">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow"><span class="dot"></span>MONTH EXECUTION</div>
+              <h2 style="margin-top: 14px">月調度執行檢視</h2>
+              <p class="subtext">夜間與低發電時段也保留連續線段，避免看起來像資料消失。</p>
+            </div>
+            <div class="controls">
+              <select id="monthSelect" aria-label="選擇月份"></select>
+            </div>
+          </div>
+
+          <div class="metric-row" id="monthMetrics"></div>
+
+          <article class="card">
+            <div class="card-head">
+              <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px">
+                <div>
+                  <h3 id="executionTitle">夏季實績日 15 分鐘調度</h3>
+                  <p class="subtext">預設顯示負載、PV、購電與 SOC；可用 toggle 控制線段。</p>
+                </div>
+                <div class="controls" id="seriesToggles"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="chart" id="dispatchChart"></div>
+              <div class="legend" id="dispatchLegend"></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="panel" id="decision">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow"><span class="dot"></span>DECISION TRACE</div>
+              <h2 style="margin-top: 14px">MILP 決策解釋</h2>
+              <p class="subtext">可切換實績抽樣日與 Monte Carlo 情境日，避免只展示單一月份。</p>
+            </div>
+            <div class="controls">
+              <select id="decisionSelect" aria-label="選擇決策情境"></select>
+            </div>
+          </div>
+
+          <article class="card">
+            <div class="card-head">
+              <h3 id="decisionTitle">日內決策排程</h3>
+              <p class="subtext">柱狀顯示 PV、台電取電與電池動作，右軸顯示 SOC。</p>
+            </div>
+            <div class="card-body">
+              <div class="chart" id="decisionChart"></div>
+              <div class="note" id="decisionNarrative"></div>
+            </div>
+          </article>
+
+          <div class="grid" style="margin-top: 18px">
+            <article class="card">
+              <div class="card-head">
+                <h3>成本函數項目拆解</h3>
+                <p class="subtext">檢查購電成本、需量費、SOC 約束、棄光與超約懲罰在決策中的權重。</p>
+              </div>
+              <div class="card-body"><div class="chart" id="objectiveBars" style="min-height: 420px"></div></div>
+            </article>
+            <article class="card">
+              <div class="card-head">
+                <h3>能源流向拆解</h3>
+                <p class="subtext">比較 PV、台電與電池之間的能量分配，確認系統是否優先使用再生能源並避免不合理充放電。</p>
+              </div>
+              <div class="card-body"><div class="chart" id="flowBars" style="min-height: 420px"></div></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="risk">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow"><span class="dot"></span>RISK & SCENARIO</div>
+              <h2 style="margin-top: 14px">風險檢查 / 快速估算</h2>
+              <p class="subtext">這裡是展示版估算，不重跑 MILP；完整求解仍需回到正式專案。</p>
+            </div>
+          </div>
+
+          <div class="risk-grid">
+            <article class="risk">
+              <h3>超約風險</h3>
+              <p class="subtext" id="riskContractValue">預估尖峰接近契約容量</p>
+              <span class="status yellow" id="riskContractStatus">中</span>
+            </article>
+            <article class="risk">
+              <h3>SOC 安全備援</h3>
+              <p class="subtext" id="riskSocValue">最低 SOC 仍高於備援線</p>
+              <span class="status green" id="riskSocStatus">安全</span>
+            </article>
+            <article class="risk">
+              <h3>本月最高需量</h3>
+              <p class="subtext" id="riskPeakValue">581.4 kW，需注意契約設定</p>
+              <span class="status red" id="riskPeakStatus">偏高</span>
+            </article>
+            <article class="risk">
+              <h3>預測信心度</h3>
+              <p class="subtext" id="riskConfidenceValue">Monte Carlo 區間寬度中等</p>
+              <span class="status yellow" id="riskConfidenceStatus">觀察</span>
+            </article>
+          </div>
+
+          <div class="calc-layout">
+            <article class="card">
+              <div class="card-head">
+                <h3>情境參數控制台</h3>
+                <p class="subtext">月份、容量、契約與成本假設一起調整；右側圖表即時重算。</p>
+              </div>
+              <div class="card-body">
+                <div class="field-row">
+                  <label for="scenarioMonth">估算月份</label>
+                  <select id="scenarioMonth" aria-label="估算月份"></select>
+                </div>
+                <div class="slider-row">
+                  <label for="batteryQ">電池容量 Q</label><strong id="batteryQValue"></strong>
+                  <input id="batteryQ" type="range" min="100" max="2000" step="50" value="1000" />
+                </div>
+                <div class="slider-row">
+                  <label for="contractKw">契約容量</label><strong id="contractKwValue"></strong>
+                  <input id="contractKw" type="range" min="200" max="800" step="10" value="400" />
+                </div>
+                <div class="slider-row">
+                  <label for="penalty">超約懲罰 λ</label><strong id="penaltyValue"></strong>
+                  <input id="penalty" type="range" min="0" max="1000" step="10" value="280" />
+                </div>
+                <div class="slider-row">
+                  <label for="socWeight">SOC 追蹤權重</label><strong id="socWeightValue"></strong>
+                  <input id="socWeight" type="range" min="0" max="3000" step="100" value="1400" />
+                </div>
+                <div class="slider-row">
+                  <label for="capexPerKwh">建置成本 / kWh</label><strong id="capexPerKwhValue"></strong>
+                  <input id="capexPerKwh" type="range" min="9000" max="22000" step="500" value="14500" />
+                </div>
+                <div class="formula-box" id="scenarioFormula"></div>
+                <button class="btn-primary" type="button">執行完整場景（Demo 按鈕）</button>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-head">
+                <h3>Live Scenario Preview</h3>
+                <p class="subtext">快速估算，點擊執行取得精確結果。滑動任何參數後，卡片與圖表立即更新。</p>
+              </div>
+              <div class="card-body">
+                <div class="scenario-banner">
+                  <div>
+                    <div class="kpi-title">估算月節省</div>
+                    <strong id="estimatedSavingsHero"></strong>
+                  </div>
+                  <span class="status green" id="scenarioStatus">可行</span>
+                </div>
+                <div class="preview">
+                  <div class="preview-card">Estimated monthly cost<strong id="estimatedCost"></strong></div>
+                  <div class="preview-card">Savings vs B1<strong id="estimatedSavings"></strong></div>
+                  <div class="preview-card">Over-contract events<strong id="estimatedEvents"></strong></div>
+                  <div class="preview-card">Payback estimate<strong id="estimatedPayback"></strong></div>
+                  <div class="preview-card">Annualized P50 saving<strong id="estimatedAnnual"></strong></div>
+                  <div class="preview-card">Battery CAPEX<strong id="estimatedCapex"></strong></div>
+                </div>
+                <div class="chart" id="scenarioCostChart" style="min-height: 270px; margin-top: 18px"></div>
+                <div class="chart" id="scenarioSensitivityChart" style="min-height: 250px"></div>
+                <div class="assumptions">
+                  <div class="assumption"><span>估算模型</span><strong>簡化成本函數</strong></div>
+                  <div class="assumption"><span>用途</span><strong>展示 / 參數溝通</strong></div>
+                  <div class="assumption"><span>精確求解</span><strong>需回 MILP engine</strong></div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <p class="footer">Single-file export. No build step, no external libraries, no backend calls.</p>
+    </div>
+    <div class="chart-tip" id="chartTooltip" role="status" aria-live="polite"></div>
+
+    <script>
+      const overview = {
+        withoutSystemCost: 914738,
+        milpCost: 686947,
+        monthlySavings: 227791,
+        pvUtilization: 91.5,
+      };
+
+      const strategies = [
+        { label: "B5 保守 SOC", totalCost: 2630131, isMilp: false, isB1: false },
+        { label: "B3 負載門檻", totalCost: 1399217, isMilp: false, isB1: false },
+        { label: "B2 TOU 規則", totalCost: 1266444, isMilp: false, isB1: false },
+        { label: "B1 無電池", totalCost: 914738, isMilp: false, isB1: true },
+        { label: "B4 再生能源優先", totalCost: 815081, isMilp: false, isB1: false },
+        { label: "Advanced EMS (MILP)", totalCost: 686947, isMilp: true, isB1: false },
+      ];
+
+      const monthly = [
+        { month: 1, label: "01月", cost: 303152, b1Cost: 323308, savings: 20156, source: "mc_scenario", pvUtilization: 99, peakGridKw: 199.8 },
+        { month: 2, label: "02月", cost: 325461, b1Cost: 370390, savings: 44929, source: "mc_scenario", pvUtilization: 97.5, peakGridKw: 195.7 },
+        { month: 3, label: "03月", cost: 361084, b1Cost: 445570, savings: 84486, source: "mc_scenario", pvUtilization: 91.7, peakGridKw: 122.8 },
+        { month: 4, label: "04月", cost: 382307, b1Cost: 490359, savings: 108052, source: "mc_scenario", pvUtilization: 88.1, peakGridKw: 76 },
+        { month: 5, label: "05月", cost: 396352, b1Cost: 520000, savings: 123648, source: "mc_scenario", pvUtilization: 84.6, peakGridKw: 76 },
+        { month: 6, label: "06月", cost: 392310, b1Cost: 511470, savings: 119160, source: "mc_scenario", pvUtilization: 89.1, peakGridKw: 228.9 },
+        { month: 7, label: "07月", cost: 347832, b1Cost: 463173, savings: 115341, source: "actual_ems", pvUtilization: 91.1, peakGridKw: 498.7 },
+        { month: 8, label: "08月", cost: 382519, b1Cost: 490806, savings: 108287, source: "mc_scenario", pvUtilization: 89.8, peakGridKw: 206.2 },
+        { month: 9, label: "09月", cost: 358753, b1Cost: 440650, savings: 81897, source: "mc_scenario", pvUtilization: 94.7, peakGridKw: 216.1 },
+        { month: 10, label: "10月", cost: 333358, b1Cost: 387056, savings: 53698, source: "mc_scenario", pvUtilization: 95.8, peakGridKw: 147.9 },
+        { month: 11, label: "11月", cost: 305570, b1Cost: 328411, savings: 22841, source: "mc_scenario", pvUtilization: 99, peakGridKw: 160.1 },
+        { month: 12, label: "12月", cost: 339114, b1Cost: 451565, savings: 112450, source: "actual_ems", pvUtilization: 98.5, peakGridKw: 581.4 },
+      ];
+
+      const annualProjection = [
+        { month: 1, label: "01月", p10: 16528, p50: 20156, p90: 23784 },
+        { month: 2, label: "02月", p10: 36842, p50: 44929, p90: 53016 },
+        { month: 3, label: "03月", p10: 69279, p50: 84486, p90: 99694 },
+        { month: 4, label: "04月", p10: 88602, p50: 108052, p90: 127501 },
+        { month: 5, label: "05月", p10: 101391, p50: 123648, p90: 145905 },
+        { month: 6, label: "06月", p10: 97711, p50: 119160, p90: 140608 },
+        { month: 7, label: "07月", p10: 93395, p50: 113896, p90: 134397 },
+        { month: 8, label: "08月", p10: 88796, p50: 108287, p90: 127779 },
+        { month: 9, label: "09月", p10: 67156, p50: 81897, p90: 96639 },
+        { month: 10, label: "10月", p10: 44032, p50: 53698, p90: 63363 },
+        { month: 11, label: "11月", p10: 18730, p50: 22841, p90: 26953 },
+        { month: 12, label: "12月", p10: 11270, p50: 13744, p90: 16218 },
+      ];
+
+      const schedules = {
+        summer: {
+          label: "夏季實績抽樣日",
+          subtitle: "夏季高發電與尖峰風險",
+          month: 7,
+          points: [
+            { t: "00:00", load: 12.01, pv: 0, grid: 0, soc: 49.8, charge: 0, discharge: 12.01 },
+            { t: "02:00", load: 11.7, pv: 0, grid: 0, soc: 48.6, charge: 0, discharge: 11.7 },
+            { t: "04:00", load: 11.36, pv: 15.64, grid: 2.74, soc: 47.8, charge: 4.28, discharge: 0 },
+            { t: "06:00", load: 11.55, pv: 56.99, grid: 9.83, soc: 49.6, charge: 45.44, discharge: 0 },
+            { t: "08:00", load: 13.21, pv: 154.23, grid: 62.75, soc: 53.5, charge: 127.25, discharge: 0 },
+            { t: "10:00", load: 12.07, pv: 179.55, grid: 79.89, soc: 61.6, charge: 167.48, discharge: 0 },
+            { t: "12:00", load: 11.55, pv: 174.71, grid: 0, soc: 74.9, charge: 163.16, discharge: 0 },
+            { t: "14:00", load: 11.92, pv: 147.1, grid: 31.8, soc: 89.5, charge: 135.19, discharge: 0 },
+            { t: "16:00", load: 12.55, pv: 57.6, grid: 0, soc: 90, charge: 0, discharge: 0 },
+            { t: "18:00", load: 12.19, pv: 6.76, grid: 0, soc: 89.9, charge: 0, discharge: 5.42 },
+            { t: "20:00", load: 12.2, pv: 0.03, grid: 0.07, soc: 88.8, charge: 0, discharge: 12.17 },
+            { t: "22:00", load: 12.55, pv: 0, grid: 0.47, soc: 87.5, charge: 0, discharge: 11.77 },
+          ],
+        },
+        winter: {
+          label: "冬季 Monte Carlo 情境日",
+          subtitle: "低日照與晚峰負載情境",
+          month: 1,
+          points: [
+            { t: "00:00", load: 44, pv: 0, grid: 82, soc: 42.5, charge: 38, discharge: 0 },
+            { t: "02:00", load: 51.27, pv: 0, grid: 89.27, soc: 46.3, charge: 38, discharge: 0 },
+            { t: "04:00", load: 37.95, pv: 0, grid: 37.95, soc: 48.2, charge: 0, discharge: 0 },
+            { t: "06:00", load: 44.87, pv: 0, grid: 44.87, soc: 48.2, charge: 0, discharge: 0 },
+            { t: "08:00", load: 100.33, pv: 23.14, grid: 77.19, soc: 48.2, charge: 0, discharge: 0 },
+            { t: "10:00", load: 81.5, pv: 66.08, grid: 15.42, soc: 48.2, charge: 0, discharge: 0 },
+            { t: "12:00", load: 123.49, pv: 93.06, grid: 30.43, soc: 48.2, charge: 0, discharge: 0 },
+            { t: "14:00", load: 145.97, pv: 84.3, grid: 0, soc: 46.7, charge: 0, discharge: 119.7 },
+            { t: "16:00", load: 87.72, pv: 34.38, grid: 0, soc: 37.5, charge: 0, discharge: 71.93 },
+            { t: "18:00", load: 173.83, pv: 0, grid: 31.29, soc: 27.6, charge: 0, discharge: 142.54 },
+            { t: "20:00", load: 153.82, pv: 0, grid: 153.82, soc: 20, charge: 0, discharge: 0 },
+            { t: "22:00", load: 50.06, pv: 0, grid: 88.06, soc: 20.5, charge: 38, discharge: 0 },
+          ],
+        },
+      };
+
+      const objectiveTerms = [
+        { label: "購電成本", value: 5000000 },
+        { label: "需量費", value: 3750000 },
+        { label: "SOC tracking", value: 3100000 },
+        { label: "棄光懲罰", value: 620000 },
+        { label: "超約懲罰", value: 90000 },
+      ];
+
+      const energyFlows = [
+        { label: "PV → 負載", value: 31000, color: "#2D7D46" },
+        { label: "PV → 電池", value: 10800, color: "#2D7D46" },
+        { label: "棄光", value: 2600, color: "#2D7D46" },
+        { label: "台電 → 負載", value: 20900, color: "#6B5BD2" },
+        { label: "台電 → 電池", value: 21200, color: "#6B5BD2" },
+        { label: "電池 → 負載", value: 30700, color: "#F59E0B" },
+      ];
+
+      let selectedMonth = 7;
+      let selectedScenarioMonth = 7;
+      let selectedSchedule = "summer";
+      const visibleSeries = new Set(["load", "pv", "grid", "soc"]);
+
+      const colors = {
+        load: "#111827",
+        pv: "#2D7D46",
+        grid: "#6D5CE7",
+        soc: "#1B4F72",
+        charge: "#4D7CFF",
+        discharge: "#F59E0B",
+      };
+
+      const labels = {
+        load: "負載",
+        pv: "PV發電",
+        grid: "購電",
+        soc: "SOC",
+        charge: "充電",
+        discharge: "放電",
+      };
+
+      const money = (value) => `NT$ ${Math.round(value).toLocaleString("zh-TW")}`;
+      const wan = (value) => `${(value / 10000).toFixed(value >= 1000000 ? 0 : 1)}萬`;
+      const sum = (items, key) => items.reduce((acc, item) => acc + item[key], 0);
+      const pct = (value) => `${Number(value).toFixed(1)}%`;
+      const esc = (value) =>
+        String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/"/g, "&quot;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+
+      function tooltipAttr(lines) {
+        return `class="hotspot" data-tooltip="${esc(lines.join("<br>"))}"`;
+      }
+
+      function svg(width, height, body) {
+        return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="chart">${body}</svg>`;
+      }
+
+      function axisGrid(x, y, width, height, ticks = 4) {
+        let out = "";
+        for (let i = 0; i <= ticks; i += 1) {
+          const yy = y + (height / ticks) * i;
+          out += `<line x1="${x}" y1="${yy}" x2="${x + width}" y2="${yy}" stroke="#e2e8f0" opacity="0.72" />`;
+        }
+        return out;
+      }
+
+      function pathFrom(points) {
+        return points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(" ");
+      }
+
+      function renderCostBars() {
+        const max = 1000000;
+        const chart = { x: 90, y: 32, width: 620, height: 250 };
+        const bars = [
+          { label: "無系統", value: overview.withoutSystemCost, color: "#C0392B" },
+          { label: "MILP 系統", value: overview.milpCost, color: "#2D7D46" },
+        ];
+        let body = axisGrid(chart.x, chart.y, chart.width, chart.height);
+        body += `<line x1="${chart.x}" y1="${chart.y + chart.height}" x2="${chart.x + chart.width}" y2="${chart.y + chart.height}" stroke="#94a3b8" />`;
+        bars.forEach((bar, index) => {
+          const bw = 110;
+          const gap = 220;
+          const x = chart.x + 120 + index * gap;
+          const h = (bar.value / max) * chart.height;
+          const y = chart.y + chart.height - h;
+          const delta = bar.label === "無系統" ? "基準成本" : `比 B1 少 ${money(overview.monthlySavings)}`;
+          body += `<rect ${tooltipAttr([bar.label, `每月電費：${money(bar.value)}`, delta])} x="${x}" y="${y}" width="${bw}" height="${h}" rx="10" fill="${bar.color}" opacity="0.92" />`;
+          body += `<text x="${x + bw / 2}" y="${y - 14}" text-anchor="middle" fill="${bar.color}" font-size="18" font-weight="800">${money(bar.value)}</text>`;
+          body += `<text x="${x + bw / 2}" y="${chart.y + chart.height + 34}" text-anchor="middle" fill="#475569" font-size="16" font-weight="800">${bar.label}</text>`;
+        });
+        body += `<path d="M 285 86 C 360 42, 420 42, 495 86" fill="none" stroke="#2D7D46" stroke-width="3" stroke-dasharray="8 8" />`;
+        body += `<text x="390" y="38" text-anchor="middle" fill="#2D7D46" font-size="16" font-weight="850">節省 ${money(overview.monthlySavings)}</text>`;
+        document.getElementById("costBars").innerHTML = svg(800, 340, body);
+      }
+
+      function renderStrategyBars() {
+        const max = Math.max(...strategies.map((item) => item.totalCost)) * 1.06;
+        const chart = { x: 190, y: 24, width: 500, height: 260 };
+        const rowH = 39;
+        const b1X = chart.x + (overview.withoutSystemCost / max) * chart.width;
+        let body = axisGrid(chart.x, chart.y, chart.width, chart.height, 4);
+        body += `<line x1="${b1X}" y1="${chart.y - 8}" x2="${b1X}" y2="${chart.y + chart.height + 4}" stroke="#C0392B" stroke-width="2" stroke-dasharray="7 7" />`;
+        body += `<text x="${b1X}" y="${chart.y - 14}" text-anchor="middle" fill="#C0392B" font-size="13" font-weight="800">B1 基準</text>`;
+        strategies.forEach((item, index) => {
+          const y = chart.y + index * rowH + 6;
+          const w = (item.totalCost / max) * chart.width;
+          const fill = item.isMilp ? "#2D7D46" : "#cbd5e1";
+          const delta = item.totalCost - overview.withoutSystemCost;
+          body += `<text x="${chart.x - 12}" y="${y + 17}" text-anchor="end" fill="#64748b" font-size="13" font-weight="700">${item.label}</text>`;
+          body += `<rect ${tooltipAttr([item.label, `總成本：${money(item.totalCost)}`, `${delta >= 0 ? "高於" : "低於"} B1：${money(Math.abs(delta))}`])} x="${chart.x}" y="${y}" width="${w}" height="24" rx="7" fill="${fill}" />`;
+          body += `<text x="${chart.x + w + 10}" y="${y + 17}" fill="#64748b" font-size="13" font-weight="800">${wan(item.totalCost)}</text>`;
+        });
+        document.getElementById("strategyBars").innerHTML = svg(760, 330, body);
+      }
+
+      function renderMonthlyBars() {
+        const max = Math.max(...monthly.map((item) => item.b1Cost)) * 1.12;
+        const chart = { x: 54, y: 24, width: 780, height: 260 };
+        const group = chart.width / monthly.length;
+        let body = axisGrid(chart.x, chart.y, chart.width, chart.height, 4);
+        monthly.forEach((item, index) => {
+          const gx = chart.x + index * group + 8;
+          const b1H = (item.b1Cost / max) * chart.height;
+          const emsH = (item.cost / max) * chart.height;
+          const source = item.source === "actual_ems" ? "EMS output" : "Monte Carlo 情境";
+          body += `<rect ${tooltipAttr([`${item.label} B1 baseline`, `成本：${money(item.b1Cost)}`, source])} x="${gx}" y="${chart.y + chart.height - b1H}" width="18" height="${b1H}" rx="4" fill="#cbd5e1" />`;
+          body += `<rect ${tooltipAttr([`${item.label} EMS`, `成本：${money(item.cost)}`, `節省：${money(item.savings)}`, source])} x="${gx + 22}" y="${chart.y + chart.height - emsH}" width="18" height="${emsH}" rx="4" fill="#2D7D46" />`;
+          if (index % 2 === 0) {
+            body += `<text x="${gx + 18}" y="${chart.y + chart.height + 26}" text-anchor="middle" fill="#64748b" font-size="12" font-weight="700">${item.label}</text>`;
+          }
+        });
+        body += `<text x="400" y="326" fill="#64748b" font-size="14" font-weight="800">灰：B1 baseline　綠：MILP / 情境 EMS</text>`;
+        document.getElementById("monthlyBars").innerHTML = svg(900, 350, body);
+      }
+
+      function renderAnnualProjection() {
+        const max = Math.max(...annualProjection.map((item) => item.p90)) * 1.15;
+        const chart = { x: 58, y: 28, width: 820, height: 260 };
+        const xFor = (index) => chart.x + (chart.width / (annualProjection.length - 1)) * index;
+        const yFor = (value) => chart.y + chart.height - (value / max) * chart.height;
+        const p90 = annualProjection.map((item, i) => ({ x: xFor(i), y: yFor(item.p90) }));
+        const p10 = annualProjection.map((item, i) => ({ x: xFor(i), y: yFor(item.p10) }));
+        const p50 = annualProjection.map((item, i) => ({ x: xFor(i), y: yFor(item.p50) }));
+        let body = axisGrid(chart.x, chart.y, chart.width, chart.height, 4);
+        const band = pathFrom(p90) + " " + p10.slice().reverse().map((point) => `L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(" ") + " Z";
+        body += `<path d="${band}" fill="#2D7D46" opacity="0.13" />`;
+        body += `<path d="${pathFrom(p90)}" fill="none" stroke="#2D7D46" stroke-width="2" stroke-dasharray="6 6" opacity="0.75" />`;
+        body += `<path d="${pathFrom(p10)}" fill="none" stroke="#2D7D46" stroke-width="2" stroke-dasharray="6 6" opacity="0.75" />`;
+        body += `<path d="${pathFrom(p50)}" fill="none" stroke="#0052FF" stroke-width="4" />`;
+        annualProjection.forEach((item, index) => {
+          const x = xFor(index);
+          body += `<circle ${tooltipAttr([`${item.label} 節省投影`, `P10：${money(item.p10)}`, `P50：${money(item.p50)}`, `P90：${money(item.p90)}`])} cx="${x}" cy="${yFor(item.p50)}" r="7" fill="#0052FF" stroke="#fff" stroke-width="2" />`;
+          if (index % 2 === 0) {
+            body += `<text x="${x}" y="${chart.y + chart.height + 28}" text-anchor="middle" fill="#64748b" font-size="12" font-weight="700">${item.label}</text>`;
+          }
+        });
+        body += `<text x="${chart.x + chart.width - 20}" y="${chart.y + 20}" text-anchor="end" fill="#2D7D46" font-size="14" font-weight="800">P10-P90 區間</text>`;
+        body += `<text x="${chart.x + chart.width - 20}" y="${chart.y + 44}" text-anchor="end" fill="#0052FF" font-size="14" font-weight="800">P50 中位節省</text>`;
+        document.getElementById("annualProjection").innerHTML = svg(940, 350, body);
+      }
+
+      function renderMonthSelect() {
+        const select = document.getElementById("monthSelect");
+        select.innerHTML = monthly.map((item) => `<option value="${item.month}">${item.label}</option>`).join("");
+        select.value = selectedMonth;
+        select.addEventListener("change", (event) => {
+          selectedMonth = Number(event.target.value);
+          renderMonthMetrics();
+          updatePreview();
+        });
+      }
+
+      function renderMonthMetrics() {
+        const item = monthly.find((entry) => entry.month === selectedMonth);
+        const metricData = [
+          ["本月 EMS 電費", wan(item.cost), `vs B1 基準 ${wan(item.b1Cost)}`],
+          ["PV 利用率", pct(item.pvUtilization), item.source === "actual_ems" ? "既有 EMS output" : "Monte Carlo 情境"],
+          ["月峰值", `${item.peakGridKw.toFixed(1)} kW`, "契約容量參考 400 kW"],
+          ["月節省", wan(item.savings), "相對 B1 baseline"],
+        ];
+        document.getElementById("monthMetrics").innerHTML = metricData
+          .map((metric) => `<article class="small-metric"><div class="kpi-title">${metric[0]}</div><div class="value">${metric[1]}</div><div class="subtext">${metric[2]}</div></article>`)
+          .join("");
+      }
+
+      function renderSeriesToggles() {
+        const keys = ["load", "pv", "grid", "soc", "charge", "discharge"];
+        document.getElementById("seriesToggles").innerHTML = keys
+          .map((key) => `<button class="toggle ${visibleSeries.has(key) ? "active" : ""}" data-series="${key}">${labels[key]}</button>`)
+          .join("");
+        document.querySelectorAll("[data-series]").forEach((button) => {
+          button.addEventListener("click", () => {
+            const key = button.dataset.series;
+            if (visibleSeries.has(key)) {
+              visibleSeries.delete(key);
+            } else {
+              visibleSeries.add(key);
+            }
+            renderSeriesToggles();
+            renderDispatchChart();
+          });
+        });
+      }
+
+      function renderLineChart(targetId, points, options) {
+        const chart = { x: 58, y: 30, width: 820, height: 260 };
+        const maxLeft = Math.max(220, ...points.flatMap((point) => [point.load, point.pv, point.grid, point.charge, point.discharge])) * 1.12;
+        const xFor = (index) => chart.x + (chart.width / (points.length - 1)) * index;
+        const yLeft = (value) => chart.y + chart.height - (value / maxLeft) * chart.height;
+        const ySoc = (value) => chart.y + chart.height - (value / 100) * chart.height;
+        let body = axisGrid(chart.x, chart.y, chart.width, chart.height, 4);
+        body += `<rect x="${chart.x}" y="${chart.y}" width="${chart.width * 0.25}" height="${chart.height}" fill="#f1f5f9" opacity="0.42" />`;
+        body += `<rect x="${chart.x + chart.width * 0.5}" y="${chart.y}" width="${chart.width * 0.22}" height="${chart.height}" fill="#fff7ed" opacity="0.46" />`;
+        body += `<rect x="${chart.x + chart.width * 0.72}" y="${chart.y}" width="${chart.width * 0.2}" height="${chart.height}" fill="#fff1f2" opacity="0.44" />`;
+        body += `<line x1="${chart.x}" y1="${chart.y + chart.height}" x2="${chart.x + chart.width}" y2="${chart.y + chart.height}" stroke="#94a3b8" />`;
+        body += `<text x="18" y="160" transform="rotate(-90 18 160)" fill="#64748b" font-size="13" font-weight="800">kW</text>`;
+        body += `<text x="910" y="160" transform="rotate(90 910 160)" fill="#64748b" font-size="13" font-weight="800">% SOC</text>`;
+        options.series.forEach((key) => {
+          if (!visibleSeries.has(key) && targetId === "dispatchChart") return;
+          const pathPoints = points.map((point, index) => ({
+            x: xFor(index),
+            y: key === "soc" ? ySoc(point[key]) : yLeft(point[key]),
+          }));
+          body += `<path d="${pathFrom(pathPoints)}" fill="none" stroke="${colors[key]}" stroke-width="${key === "soc" ? 4 : 3}" stroke-linecap="round" stroke-linejoin="round" />`;
+          pathPoints.forEach((point) => {
+            body += `<circle cx="${point.x}" cy="${point.y}" r="3.5" fill="${colors[key]}" stroke="#fff" stroke-width="1" />`;
+          });
+        });
+        points.forEach((point, index) => {
+          const activeKeys = options.series.filter((key) => targetId !== "dispatchChart" || visibleSeries.has(key));
+          const tipLines = [
+            point.t,
+            ...activeKeys.map((key) => `${labels[key]}：${Number(point[key]).toFixed(1)}${key === "soc" ? "%" : " kW"}`),
+          ];
+          body += `<rect ${tooltipAttr(tipLines)} x="${xFor(index) - 24}" y="${chart.y}" width="48" height="${chart.height}" fill="transparent" />`;
+          if (index % 2 === 0) {
+            body += `<text x="${xFor(index)}" y="${chart.y + chart.height + 28}" text-anchor="middle" fill="#64748b" font-size="12" font-weight="700">${point.t}</text>`;
+          }
+        });
+        document.getElementById(targetId).innerHTML = svg(940, 350, body);
+      }
+
+      function renderDispatchChart() {
+        const schedule = selectedMonth === 1 ? schedules.winter : schedules.summer;
+        document.getElementById("executionTitle").textContent = `${schedule.label} 15 分鐘調度`;
+        renderLineChart("dispatchChart", schedule.points, {
+          series: ["load", "pv", "grid", "soc", "charge", "discharge"],
+        });
+        document.getElementById("dispatchLegend").innerHTML = Array.from(visibleSeries)
+          .map((key) => `<span class="legend-item"><span class="swatch" style="background:${colors[key]}"></span>${labels[key]}</span>`)
+          .join("");
+      }
+
+      function renderDecisionSelect() {
+        const select = document.getElementById("decisionSelect");
+        select.innerHTML = Object.entries(schedules)
+          .map(([key, value]) => `<option value="${key}">${value.label}</option>`)
+          .join("");
+        select.value = selectedSchedule;
+        select.addEventListener("change", (event) => {
+          selectedSchedule = event.target.value;
+          renderDecisionChart();
+        });
+      }
+
+      function renderDecisionChart() {
+        const schedule = schedules[selectedSchedule];
+        const points = schedule.points;
+        document.getElementById("decisionTitle").textContent = `${schedule.label} 日內決策排程`;
+        const chart = { x: 58, y: 30, width: 820, height: 280 };
+        const maxLeft = Math.max(220, ...points.flatMap((point) => [point.pv, point.grid, point.charge, point.discharge])) * 1.2;
+        const xFor = (index) => chart.x + (chart.width / points.length) * index + 8;
+        const bandW = chart.width / points.length - 10;
+        const yLeft = (value) => chart.y + chart.height / 2 - (value / maxLeft) * (chart.height / 2 - 10);
+        const yNeg = (value) => chart.y + chart.height / 2 + (value / maxLeft) * (chart.height / 2 - 10);
+        const ySoc = (value) => chart.y + chart.height - (value / 100) * chart.height;
+        let body = axisGrid(chart.x, chart.y, chart.width, chart.height, 4);
+        body += `<line x1="${chart.x}" y1="${chart.y + chart.height / 2}" x2="${chart.x + chart.width}" y2="${chart.y + chart.height / 2}" stroke="#94a3b8" />`;
+        points.forEach((point, index) => {
+          const x = xFor(index);
+          const pvH = chart.y + chart.height / 2 - yLeft(point.pv);
+          const gridH = chart.y + chart.height / 2 - yLeft(point.grid);
+          const battery = point.discharge - point.charge;
+          if (point.pv > 0) body += `<rect x="${x}" y="${yLeft(point.pv)}" width="${bandW / 3}" height="${pvH}" fill="#2D7D46" opacity="0.65" />`;
+          if (point.grid > 0) body += `<rect x="${x + bandW / 3 + 2}" y="${yLeft(point.grid)}" width="${bandW / 3}" height="${gridH}" fill="#6D5CE7" opacity="0.65" />`;
+          if (battery >= 0) {
+            const h = yNeg(battery) - (chart.y + chart.height / 2);
+            body += `<rect x="${x + (bandW / 3) * 2 + 4}" y="${chart.y + chart.height / 2}" width="${bandW / 3}" height="${h}" fill="#F59E0B" opacity="0.82" />`;
+          } else {
+            const charge = Math.abs(battery);
+            const h = chart.y + chart.height / 2 - yLeft(charge);
+            body += `<rect x="${x + (bandW / 3) * 2 + 4}" y="${yLeft(charge)}" width="${bandW / 3}" height="${h}" fill="#4D7CFF" opacity="0.66" />`;
+          }
+          body += `<rect ${tooltipAttr([
+            point.t,
+            `太陽能發電：${point.pv.toFixed(1)} kW`,
+            `台電取電：${point.grid.toFixed(1)} kW`,
+            `電池動作：${battery >= 0 ? "放電" : "充電"} ${Math.abs(battery).toFixed(1)} kW`,
+            `SOC：${point.soc.toFixed(1)}%`,
+          ])} x="${x - 3}" y="${chart.y}" width="${bandW + 6}" height="${chart.height}" fill="transparent" />`;
+          if (index % 2 === 0) {
+            body += `<text x="${x + bandW / 2}" y="${chart.y + chart.height + 27}" text-anchor="middle" fill="#64748b" font-size="12" font-weight="700">${point.t}</text>`;
+          }
+        });
+        const socPath = points.map((point, index) => ({
+          x: xFor(index) + bandW / 2,
+          y: ySoc(point.soc),
+        }));
+        body += `<path d="${pathFrom(socPath)}" fill="none" stroke="#1B4F72" stroke-width="4" stroke-linecap="round" />`;
+        document.getElementById("decisionChart").innerHTML = svg(940, 370, body);
+        const focus = points.find((point) => point.t === "14:00") || points[7];
+        document.getElementById("decisionNarrative").textContent =
+          `${focus.t} ${schedule.subtitle}：PV ${focus.pv.toFixed(1)} kW，購電 ${focus.grid.toFixed(1)} kW，` +
+          `電池${focus.discharge > 0 ? "放電" : focus.charge > 0 ? "充電" : "待機"} ${(focus.discharge || focus.charge).toFixed(1)} kW，SOC ${focus.soc.toFixed(1)}%。`;
+      }
+
+      function renderSimpleBars(targetId, data, valueKey = "value") {
+        const max = Math.max(...data.map((item) => item[valueKey])) * 1.14;
+        const chart = { x: 170, y: 24, width: 560, height: 260 };
+        const rowH = chart.height / data.length;
+        let body = axisGrid(chart.x, chart.y, chart.width, chart.height, 4);
+        data.forEach((item, index) => {
+          const y = chart.y + index * rowH + 7;
+          const w = (item[valueKey] / max) * chart.width;
+          const fill = item.color || "#0052FF";
+          body += `<text x="${chart.x - 12}" y="${y + 17}" text-anchor="end" fill="#64748b" font-size="13" font-weight="700">${item.label}</text>`;
+          body += `<rect ${tooltipAttr([item.label, `數值：${Number(item[valueKey]).toLocaleString("zh-TW")}`])} x="${chart.x}" y="${y}" width="${w}" height="22" rx="7" fill="${fill}" />`;
+        });
+        document.getElementById(targetId).innerHTML = svg(780, 320, body);
+      }
+
+      function estimateScenario(month, batteryQ, contractKw, penalty, socWeight) {
+        const overContractEvents = Math.max(0, Math.round((month.peakGridKw - contractKw) / 18));
+        const savingsPerKwhCoefficient = Math.max(38, 118 - Math.max(0, socWeight - 1400) * 0.008);
+        const penaltyRate = penalty * 64;
+        const estimatedCost = Math.max(
+          120000,
+          month.b1Cost - batteryQ * savingsPerKwhCoefficient + overContractEvents * penaltyRate
+        );
+        const estimatedSavings = month.b1Cost - estimatedCost;
+        return { overContractEvents, savingsPerKwhCoefficient, penaltyRate, estimatedCost, estimatedSavings };
+      }
+
+      function renderScenarioCostChart(month, estimatedCost) {
+        const rows = [
+          { label: "B1 無系統", value: month.b1Cost, color: "#cbd5e1" },
+          { label: "目前 EMS", value: month.cost, color: "#2D7D46" },
+          { label: "Slider 情境", value: estimatedCost, color: "#0052FF" },
+        ];
+        const max = Math.max(...rows.map((row) => row.value)) * 1.18;
+        const chart = { x: 92, y: 28, width: 600, height: 205 };
+        let body = axisGrid(chart.x, chart.y, chart.width, chart.height, 4);
+        rows.forEach((row, index) => {
+          const bw = 96;
+          const x = chart.x + 80 + index * 170;
+          const h = (row.value / max) * chart.height;
+          const y = chart.y + chart.height - h;
+          body += `<rect ${tooltipAttr([row.label, `估算成本：${money(row.value)}`, `月份：${month.label}`])} x="${x}" y="${y}" width="${bw}" height="${h}" rx="10" fill="${row.color}" opacity="0.9" />`;
+          body += `<text x="${x + bw / 2}" y="${y - 10}" text-anchor="middle" fill="${row.color}" font-size="14" font-weight="850">${wan(row.value)}</text>`;
+          body += `<text x="${x + bw / 2}" y="${chart.y + chart.height + 27}" text-anchor="middle" fill="#64748b" font-size="12" font-weight="800">${row.label}</text>`;
+        });
+        body += `<text x="${chart.x}" y="18" fill="#64748b" font-size="13" font-weight="850">${month.label} 成本對比</text>`;
+        document.getElementById("scenarioCostChart").innerHTML = svg(780, 280, body);
+      }
+
+      function renderScenarioSensitivityChart(month, contractKw, penalty, socWeight) {
+        const capacities = [200, 500, 800, 1100, 1400, 1700, 2000];
+        const scenarios = capacities.map((capacity) => ({
+          capacity,
+          ...estimateScenario(month, capacity, contractKw, penalty, socWeight),
+        }));
+        const max = Math.max(month.b1Cost, ...scenarios.map((item) => item.estimatedCost)) * 1.08;
+        const min = Math.min(...scenarios.map((item) => item.estimatedCost)) * 0.92;
+        const chart = { x: 58, y: 28, width: 650, height: 170 };
+        const xFor = (index) => chart.x + (chart.width / (scenarios.length - 1)) * index;
+        const yFor = (value) => chart.y + chart.height - ((value - min) / (max - min)) * chart.height;
+        const points = scenarios.map((item, index) => ({ x: xFor(index), y: yFor(item.estimatedCost), item }));
+        let body = axisGrid(chart.x, chart.y, chart.width, chart.height, 3);
+        body += `<path d="${pathFrom(points)}" fill="none" stroke="#0052FF" stroke-width="4" stroke-linecap="round" />`;
+        points.forEach((point, index) => {
+          body += `<circle ${tooltipAttr([`Q = ${point.item.capacity} kWh`, `估算成本：${money(point.item.estimatedCost)}`, `節省：${money(point.item.estimatedSavings)}`])} cx="${point.x}" cy="${point.y}" r="7" fill="#0052FF" stroke="#fff" stroke-width="2" />`;
+          body += `<text x="${point.x}" y="${chart.y + chart.height + 25}" text-anchor="middle" fill="#64748b" font-size="12" font-weight="700">${point.item.capacity}</text>`;
+        });
+        body += `<text x="${chart.x}" y="18" fill="#64748b" font-size="13" font-weight="850">電池容量敏感度（x 軸：kWh）</text>`;
+        document.getElementById("scenarioSensitivityChart").innerHTML = svg(780, 245, body);
+      }
+
+      function renderRiskPreviewControls() {
+        const scenarioSelect = document.getElementById("scenarioMonth");
+        scenarioSelect.innerHTML = monthly.map((item) => `<option value="${item.month}">${item.label}</option>`).join("");
+        scenarioSelect.value = selectedScenarioMonth;
+        scenarioSelect.addEventListener("change", (event) => {
+          selectedScenarioMonth = Number(event.target.value);
+          updatePreview();
+        });
+        ["batteryQ", "contractKw", "penalty", "socWeight", "capexPerKwh"].forEach((id) => {
+          document.getElementById(id).addEventListener("input", updatePreview);
+        });
+        updatePreview();
+      }
+
+      function updatePreview() {
+        const batteryQ = Number(document.getElementById("batteryQ").value);
+        const contractKw = Number(document.getElementById("contractKw").value);
+        const penalty = Number(document.getElementById("penalty").value);
+        const socWeight = Number(document.getElementById("socWeight").value);
+        const capexPerKwh = Number(document.getElementById("capexPerKwh").value);
+        const month = monthly.find((item) => item.month === selectedScenarioMonth) || monthly[6];
+        const { overContractEvents, savingsPerKwhCoefficient, penaltyRate, estimatedCost, estimatedSavings } =
+          estimateScenario(month, batteryQ, contractKw, penalty, socWeight);
+        const annualP50 = sum(annualProjection, "p50");
+        const baseMonthSaving = Math.max(month.savings, 1);
+        const annualizedSaving = Math.max(0, annualP50 * (estimatedSavings / baseMonthSaving) * 0.62);
+        const capex = batteryQ * capexPerKwh;
+        const payback = capex / Math.max(annualizedSaving, 1);
+        const riskGap = month.peakGridKw - contractKw;
+        document.getElementById("batteryQValue").textContent = `${batteryQ} kWh`;
+        document.getElementById("contractKwValue").textContent = `${contractKw} kW`;
+        document.getElementById("penaltyValue").textContent = penalty.toLocaleString("zh-TW");
+        document.getElementById("socWeightValue").textContent = socWeight.toLocaleString("zh-TW");
+        document.getElementById("capexPerKwhValue").textContent = money(capexPerKwh);
+        document.getElementById("estimatedSavingsHero").textContent = money(estimatedSavings);
+        document.getElementById("estimatedCost").textContent = money(estimatedCost);
+        document.getElementById("estimatedSavings").textContent = money(estimatedSavings);
+        document.getElementById("estimatedEvents").textContent = `${overContractEvents} 次`;
+        document.getElementById("estimatedPayback").textContent = `${payback.toFixed(1)} 年`;
+        document.getElementById("estimatedAnnual").textContent = money(annualizedSaving);
+        document.getElementById("estimatedCapex").textContent = money(capex);
+        document.getElementById("scenarioFormula").innerHTML =
+          `estimated_cost = base_cost - battery_capacity * savings_per_kwh_coefficient + over_contract_events * penalty_rate<br>` +
+          `${money(estimatedCost)} = ${money(month.b1Cost)} - ${batteryQ} * ${savingsPerKwhCoefficient.toFixed(1)} + ${overContractEvents} * ${money(penaltyRate)}`;
+        const scenarioStatus = document.getElementById("scenarioStatus");
+        scenarioStatus.textContent = estimatedSavings > 0 && overContractEvents < 4 ? "可行" : estimatedSavings > 0 ? "需檢查" : "不利";
+        scenarioStatus.className = `status ${estimatedSavings > 0 && overContractEvents < 4 ? "green" : estimatedSavings > 0 ? "yellow" : "red"}`;
+        document.getElementById("riskContractValue").textContent = `${month.label} 峰值 ${month.peakGridKw.toFixed(1)} kW，契約 ${contractKw} kW`;
+        document.getElementById("riskPeakValue").textContent = `距契約 ${riskGap >= 0 ? "超出" : "保留"} ${Math.abs(riskGap).toFixed(1)} kW`;
+        document.getElementById("riskSocValue").textContent = socWeight > 1900 ? "SOC 權重偏高，節費可能下降" : "SOC 權重在展示合理範圍";
+        document.getElementById("riskConfidenceValue").textContent = month.source === "actual_ems" ? "既有 EMS output 校準" : "Monte Carlo 情境抽樣";
+        const contractStatus = document.getElementById("riskContractStatus");
+        contractStatus.textContent = riskGap > 80 ? "高" : riskGap > 0 ? "中" : "低";
+        contractStatus.className = `status ${riskGap > 80 ? "red" : riskGap > 0 ? "yellow" : "green"}`;
+        document.getElementById("riskPeakStatus").textContent = riskGap > 0 ? "需調整" : "可接受";
+        document.getElementById("riskPeakStatus").className = `status ${riskGap > 0 ? "red" : "green"}`;
+        renderScenarioCostChart(month, estimatedCost);
+        renderScenarioSensitivityChart(month, contractKw, penalty, socWeight);
+      }
+
+      function setupTabs() {
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.addEventListener("click", () => {
+            document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
+            document.querySelectorAll(".panel").forEach((item) => item.classList.remove("active"));
+            tab.classList.add("active");
+            document.getElementById(tab.dataset.tab).classList.add("active");
+          });
+        });
+      }
+
+      function setupChartTooltips() {
+        const tip = document.getElementById("chartTooltip");
+        if (!tip) return;
+        const moveTip = (event) => {
+          const margin = 18;
+          const rect = tip.getBoundingClientRect();
+          const left = Math.min(window.innerWidth - rect.width - margin, event.clientX + margin);
+          const top = Math.min(window.innerHeight - rect.height - margin, event.clientY + margin);
+          tip.style.left = `${Math.max(margin, left)}px`;
+          tip.style.top = `${Math.max(margin, top)}px`;
+        };
+        document.addEventListener("pointerover", (event) => {
+          const target = event.target.closest("[data-tooltip]");
+          if (!target) return;
+          tip.innerHTML = `<span class="tip-title">${target.dataset.tooltip.split("<br>")[0]}</span><br>${target.dataset.tooltip
+            .split("<br>")
+            .slice(1)
+            .join("<br>")}`;
+          tip.style.display = "block";
+          moveTip(event);
+        });
+        document.addEventListener("pointermove", (event) => {
+          if (tip.style.display === "block") moveTip(event);
+        });
+        document.addEventListener("pointerout", (event) => {
+          if (!event.target.closest("[data-tooltip]")) return;
+          tip.style.display = "none";
+        });
+      }
+
+      function init() {
+        document.getElementById("annualSavingText").textContent = money(sum(annualProjection, "p50"));
+        setupChartTooltips();
+        setupTabs();
+        renderCostBars();
+        renderStrategyBars();
+        renderMonthlyBars();
+        renderAnnualProjection();
+        renderMonthSelect();
+        renderMonthMetrics();
+        renderSeriesToggles();
+        renderDispatchChart();
+        renderDecisionSelect();
+        renderDecisionChart();
+        renderSimpleBars("objectiveBars", objectiveTerms);
+        renderSimpleBars("flowBars", energyFlows);
+        renderRiskPreviewControls();
+      }
+
+      init();
+    </script>
+  </body>
+</html>

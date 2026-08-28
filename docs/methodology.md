@@ -106,6 +106,11 @@ The q10 model reuses the tuned point-forecast hyperparameters to avoid overfitti
 
 The forecast module exports point and q10 solar forecasts in a format that can be consumed by the downstream MILP optimizer. The single-day MILP run in this repository is an integration check, not the final optimization workstream.
 
+Forecast handoff files:
+
+- `model_results/forecast/milp_solar_forecast_15min.csv`: native 15-minute forecast output.
+- `model_results/forecast/milp_solar_forecast_hourly.csv`: hourly forecast formed by summing four 15-minute Wh predictions.
+
 Prototype constraints checked:
 
 - charge/discharge mutual exclusion via Big-M binary mode
