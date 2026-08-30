@@ -34,6 +34,18 @@ Production build:
 npm run build
 ```
 
+## P-Robust Owner Comparison
+
+The main dashboard header links to a standalone interactive comparison page:
+
+```text
+public/owner-full-grid-robust-comparison.html
+```
+
+The page compares one representative day under four consistent operating modes: full grid purchase without PV or battery, PV only, the previous deterministic EMS, and hourly rolling P-robust dispatch. It includes hover details for cost composition, savings sources, grid energy, peak demand, and the 24-hour grid-power trace.
+
+The displayed P-robust result is a frozen research snapshot derived from `model_results/robust/rolling_2018-12-15_s10_p0.15.json` and the matching legacy EMS output. It must not be presented as an annual guarantee: final SOC differs from initial SOC, and current scenario coverage and out-of-sample regret do not yet pass validation.
+
 ## Single-file HTML Export
 
 若只是臨時展示或最簡單部署，可以直接使用：

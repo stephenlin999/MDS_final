@@ -6,6 +6,7 @@ import {
   CalendarDays,
   CheckCircle2,
   CloudSun,
+  ExternalLink,
   Gauge,
   Play,
   RefreshCw,
@@ -1141,6 +1142,15 @@ export default function EMSDashboard() {
               <span>資料產生：{generatedDate}</span>
               <span className="hidden h-1 w-1 rounded-full bg-slate-300 sm:block" />
               <span className="truncate">來源：既有 EMS 輸出校準 + Monte Carlo 未來年度情境</span>
+              <a
+                href="./owner-full-grid-robust-comparison.html"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-blue-200 bg-white px-4 font-medium text-[#0052FF] shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0052FF] focus-visible:ring-offset-2"
+              >
+                穩健最佳化比較
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              </a>
             </div>
           </div>
         </header>

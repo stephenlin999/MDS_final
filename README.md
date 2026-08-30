@@ -37,6 +37,8 @@ The primary dashboard showcase now lives in [`react-dashboard/`](react-dashboard
 
 The dashboard reads existing EMS/model outputs and converts them into local frontend JSON. The overview uses a direct two-bar comparison between "without system" and "with MILP system" monthly cost. The decision-explanation page covers all 12 months: July and December use complete existing EMS output, while the other months use Monte Carlo-calibrated future scenario days sampled from the annual solar projection.
 
+The dashboard also includes an interactive owner-facing P-robust comparison at [`react-dashboard/public/owner-full-grid-robust-comparison.html`](react-dashboard/public/owner-full-grid-robust-comparison.html). It compares the same representative day under four operating modes: full grid purchase without PV or battery, PV only, the previous deterministic EMS, and hourly rolling P-robust dispatch. The page exposes cost composition, savings sources, grid energy, peak demand, hourly grid draw, SOC context, and the current validation caveat. It is a representative-day study, not an annual savings guarantee.
+
 ```bash
 cd react-dashboard
 npm install
@@ -163,6 +165,8 @@ MDS_final/
 ├── requirements.txt
 ├── react-dashboard/
 │   ├── src/
+│   ├── public/
+│   │   └── owner-full-grid-robust-comparison.html
 │   └── scripts/
 ├── robust_ems/
 │   ├── scenarios.py       # leakage-safe paired residual scenarios

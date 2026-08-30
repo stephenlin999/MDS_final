@@ -28,6 +28,8 @@ react-dashboard/
 ├── tailwind.config.js
 ├── postcss.config.js
 ├── components.json
+├── public/
+│   └── owner-full-grid-robust-comparison.html # Standalone owner-facing robust comparison
 ├── scripts/
 │   └── build-data.mjs              # EMS/model outputs -> frontend JSON
 └── src/
@@ -95,6 +97,7 @@ Working:
 - Decision explanation data now covers all 12 months:
   - July and December use complete existing EMS output.
   - Other months use three Monte Carlo-calibrated future scenario days per month.
+- The dashboard header links to a standalone owner-facing comparison of full grid purchase, PV only, the previous deterministic EMS, and P-robust dispatch. It includes interactive chart tooltips and responsive layouts.
 
 ## Known Issues
 
@@ -104,6 +107,7 @@ Priority:
 2. The full MILP rerun button is visual-only. If real reruns are needed, wire it to a controlled backend or reuse the Streamlit runner logic.
 3. Ten months use generated Monte Carlo-calibrated scenario days, not solved full-month MILP output. Keep this wording visible in the UI to avoid overclaiming.
 4. Load SHAP values are prototype values because only solar SHAP output exists in `model_results/reports/shap_importance.csv`.
+5. The standalone P-robust comparison is a frozen representative-day snapshot. Regenerate it when robust outputs or the comparison date change; do not treat its 51.7% daily reduction as an annual guarantee.
 
 ## Next Steps
 
