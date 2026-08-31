@@ -14,6 +14,17 @@ The UI never creates fallback numbers. It only builds from a formal annual resul
 - Lucide icons
 - Imported local JSON; no runtime API or network request
 
+## Taste Skill Design Source
+
+The client proposal is implemented against [`Leonxlnx/taste-skill`](https://github.com/Leonxlnx/taste-skill), main commit `ccbc15639c97057cbfcf32ecebc38ef716e4bb37`, using `skills/taste-skill/SKILL.md` rather than treating the repository as visual inspiration only.
+
+Design read: a client-facing B2B energy decision proposal for factory owners and technical reviewers, with a precise, evidence-led graphite visual language.
+
+- Client proposal dials: `DESIGN_VARIANCE 7 / MOTION_INTENSITY 4 / VISUAL_DENSITY 5`
+- Engineering dashboard dials: `4 / 2 / 8`
+
+The upstream skill explicitly excludes dashboards and dense product UI. Its landing-page rules therefore govern `proposal.jsx`; `dashboard.jsx` only adopts the redesign audit, typography, color consistency, motion restraint, accessibility, and pre-flight checks. The proposal uses one dark theme, one project-green accent family, a maximum 8 px radius, a two-line desktop hero, no section numbering, no scroll cue, no persistent animation, and real formal-data charts instead of decorative fake product previews.
+
 ## Build The Formal Annual Result
 
 The annual planner requires Python 3.13, Pyomo, HiGHS, NumPy, pandas, and scikit-learn. From the repository root:
@@ -74,7 +85,7 @@ Output:
 exports/ems-robust-client-proposal.html
 ```
 
-The export inlines React, Recharts, CSS, and formal annual data. It uses system fonts and has no CDN, server, API, or external font dependency. Open it directly with `file://`; charts, tooltips, month/day selectors, solved-point p slider, Executive/Technical switch, and ROI calculator remain interactive offline.
+The export inlines React, Recharts, CSS, and formal annual data. It uses system fonts and has no CDN, server, API, or external font dependency. Open it directly with `file://`; charts, tooltips, month/day selectors, solved-point p slider, owner/technical switch, and ROI calculator remain interactive offline.
 
 ## Model And Evidence Boundary
 

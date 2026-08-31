@@ -61,16 +61,20 @@ The sole UI source is `model_results/robust/annual_planning/presentation.json`:
 
 ## Design System
 
-- Graphite `#18201C`: primary text and inverted evidence sections
+- Design source: `Leonxlnx/taste-skill`, `skills/taste-skill/SKILL.md`, main commit `ccbc15639c97057cbfcf32ecebc38ef716e4bb37`
+- Proposal dials: `DESIGN_VARIANCE 7 / MOTION_INTENSITY 4 / VISUAL_DENSITY 5`
+- Dashboard dials: `4 / 2 / 8`; the upstream skill excludes dashboards, so do not apply its marketing layouts to dense engineering tabs
+- Proposal theme: graphite `#111713` canvas with `#171F1A` data surfaces; the theme does not invert between sections
+- Dashboard theme: background `#F8FAF9`, cards white, border `#D9E0DC`, graphite `#18201C` text
 - Project green `#2D7D46`: savings, P-Robust, and positive status
-- Alert red `#C0392B`: full-grid cost, over-contract exposure, failed validation
-- SOC blue `#1B4F72`
-- Neutral gray `#9CA3AF`
-- Background `#F8FAF9`, cards white, border `#D9E0DC`
-- System UI fonts only; tabular numerals for metrics
+- Alert red: full-grid cost, over-contract exposure, P90 adverse cost, and failed validation
+- SOC blue is reserved for SOC lines
+- System Chinese/UI fonts only; no external font request; tabular numerals for metrics
 - Card radius is at most 8 px
 - Stable chart heights, `min-width: 0`, and overflow-visible Recharts tooltips
-- No persistent floating, pulsing, scale, glow-orb, or background animation
+- Proposal hero uses the real representative-day chart as its product visual; no fake dashboard illustration
+- No section-number eyebrows, scroll cue, decorative status dots, theme flips, persistent floating, pulsing, scale, glow-orb, or background animation
+- The only proposal entrance motion changes opacity and transform once, and is disabled by `prefers-reduced-motion`
 
 ## Current State
 
@@ -83,7 +87,7 @@ Implemented and working:
 - React tabs: Decision Overview, Robust Strategy, Daily Dispatch, Model Evidence
 - Month and representative-day synchronization
 - Deterministic/P-Robust dispatch switch, series toggles, scenario band, and floating tooltips
-- Six-section client proposal with Executive/Technical mode, solved-point p slider, ROI input, and offline charts
+- Six-section Taste Skill client proposal with owner/technical mode, solved-point p slider, ROI input, floating tooltips, and offline charts
 - Fail-closed data build and fully inlined proposal build
 
 ## Known Issues
@@ -112,6 +116,8 @@ Implemented and working:
 - Preserve the distinction between pipeline status, in-sample envelope coverage, and out-of-sample regret validation.
 - Do not modify the external EMS source project from the React build.
 - Keep charts responsive, fixed-height, hoverable, and free of layout-changing animation.
+- Keep the Taste Skill page-theme, color, shape, hero, copy, and zero-em-dash pre-flight checks for the client proposal.
+- Do not turn the engineering dashboard into a landing page; retain its dense product hierarchy.
 
 ## Suggested First Action
 

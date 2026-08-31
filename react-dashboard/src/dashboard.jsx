@@ -24,7 +24,6 @@ import {
   CircleDollarSign,
   CloudSun,
   Gauge,
-  Info,
   ShieldCheck,
   Zap,
 } from "lucide-react";
@@ -144,7 +143,7 @@ function OverviewTab({ onSelectMonth }) {
     <div className="space-y-7">
       <section>
         <SectionHeading
-          eyebrow="Annual decision view"
+          eyebrow="年度決策總覽"
           title="年度成本與風險，一次看清楚"
           description="所有金額來自同一批全年 P-Robust 規劃模擬；比較完全買電、PV 自用、確定性 MILP 與 P-Robust。"
         />
@@ -229,7 +228,7 @@ function RobustTab() {
     <div className="space-y-7">
       <section>
         <SectionHeading
-          eyebrow="P-Robust control"
+          eyebrow="穩健策略權衡"
           title="用已求解的 p 值選擇成本與風險平衡"
           description="滑桿只切換已完成求解的結果，不做內插，也不在瀏覽器裡假裝重跑 MILP。"
         />
@@ -377,7 +376,7 @@ function DispatchTab({ month, setMonth }) {
     <div className="space-y-7">
       <section>
         <SectionHeading
-          eyebrow="Daily dispatch"
+          eyebrow="日內調度"
           title="跨月份抽查日內調度"
           description="每月提供 8、15、22 日三個正式求解代表日。切換確定性與 P-Robust，可直接比較購電、SOC 與充放電行為。"
           action={<DispatchSelectors month={month} setMonth={setMonth} days={days} day={day} setDay={setDay} mode={mode} setMode={setMode} />}
@@ -481,7 +480,7 @@ function EvidenceTab() {
   return (
     <div className="space-y-7">
       <section>
-        <SectionHeading eyebrow="Technical evidence" title="情境、求解與計費證據" description="這一頁保留模型可追溯資訊；對外提案時可切換 Technical 模式再展開。" />
+        <SectionHeading eyebrow="模型證據" title="情境、求解與計費證據" description="這一頁保留模型可追溯資訊；對外提案時可切換技術模式再展開。" />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <EvidenceCard icon={ShieldCheck} label="建置期包絡 coverage" value={`${number(coverage.net_load_pointwise_envelope_coverage * 100, 1)}%`} note={`目標 ${number(coverage.coverage_target * 100)}%`} />
           <EvidenceCard icon={coverage.exPostRegretPassed ? CheckCircle2 : AlertTriangle} label="樣本外 regret 覆蓋" value={`${number(coverage.exPostRegretCoverage, 1)}%`} note={`${coverage.exPostRegretPassed ? "通過" : "未通過"} ${number(coverage.exPostRegretTarget)}% 門檻`} alert={!coverage.exPostRegretPassed} />
@@ -529,19 +528,19 @@ export default function EMSDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedMonth, setSelectedMonth] = useState(7);
   const executive = data.executiveSummary;
+  const deterministic = data.strategyComparison.find((row) => row.key === "deterministic");
+  const robust = data.strategyComparison.find((row) => row.key === "robust");
+  const overContractReduction = (deterministic?.overContractEvents || 0) - (robust?.overContractEvents || 0);
   const selectMonthAndDispatch = (month) => { setSelectedMonth(month); setActiveTab("dispatch"); };
 
   return (
     <main className="min-h-screen bg-[#F8FAF9]">
       <div className="border-b border-border bg-white">
         <div className="mx-auto max-w-[1480px] px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-            <div>
-              <div className="mb-3 flex flex-wrap items-center gap-2"><Badge variant="success">P-Robust EMS</Badge><span className="text-xs text-[#66716B]">{data.meta.simulationLabel}</span></div>
-              <h1 className="max-w-4xl text-3xl font-bold leading-tight text-[#18201C] sm:text-4xl">數據分析應用於工廠用電與太陽能發電排程最佳化</h1>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66716B]">以年度電費、超約風險與日內調度為主軸，比較確定性 MILP 與 P-Robust 策略。</p>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-[#66716B]"><Info className="h-4 w-4" />Run ID: {data.meta.runId}</div>
+          <div>
+            <div className="mb-3 flex flex-wrap items-center gap-2"><Badge variant="success">P-Robust EMS</Badge><span className="text-xs text-[#66716B]">{data.meta.simulationLabel}</span></div>
+            <h1 className="max-w-4xl text-3xl font-bold leading-tight text-[#18201C] sm:text-4xl">數據分析應用於工廠用電與太陽能發電排程最佳化</h1>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66716B]">以年度電費、超約風險與日內調度為主軸，比較確定性 MILP 與 P-Robust 策略。</p>
           </div>
         </div>
       </div>
@@ -554,7 +553,9 @@ export default function EMSDashboard() {
           <MetricCard label="相對完全買電節省" value={currency(executive.robustSavings)} note={`${number(executive.robustSavingsRate, 1)}% 年度成本改善`} icon={CircleDollarSign} tone="dark" />
         </section>
 
-        <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-5 py-4 text-sm font-medium leading-6 text-[#245F36]">{executive.businessConclusion}</div>
+        <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-5 py-4 text-sm font-medium leading-6 text-[#245F36]">
+          以 {currency(executive.robustPremium)} 的年度穩健成本，使 P90 不利情境成本改善 {currency(executive.downsideReduction)}，並讓超約事件減少 {number(overContractReduction)} 次。
+        </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="sticky top-0 z-30 -mx-4 border-y border-border bg-[#F8FAF9]/95 px-4 py-3 backdrop-blur-sm sm:mx-0 sm:rounded-lg sm:border">
