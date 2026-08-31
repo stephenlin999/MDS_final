@@ -1,0 +1,34 @@
+{
+  "method": "paired_7_day_block_bootstrap_with_8_medoids_and_2_paired_stress_envelopes",
+  "draws": 1000,
+  "selected_draws": [
+    139,
+    30,
+    749,
+    413,
+    406,
+    944,
+    656,
+    607
+  ],
+  "stress_scenarios": [
+    "high_net_load_envelope",
+    "low_net_load_envelope"
+  ],
+  "probabilities": [
+    0.06762,
+    0.33418000000000003,
+    0.14406,
+    0.14209999999999998,
+    0.18031999999999998,
+    0.10289999999999999,
+    0.00392,
+    0.0049,
+    0.01,
+    0.01
+  ],
+  "net_load_pointwise_envelope_coverage": 1.0,
+  "coverage_target": 0.9,
+  "coverage_passed": true,
+  "seed": 42
+}

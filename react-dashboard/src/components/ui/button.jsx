@@ -4,16 +4,16 @@ import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-[#0052FF] to-[#4D7CFF] text-white shadow-sm hover:-translate-y-0.5 hover:shadow-accent hover:brightness-110",
+          "bg-[#2D7D46] text-white shadow-sm hover:bg-[#24683A]",
         secondary:
-          "border border-border bg-white text-foreground hover:-translate-y-0.5 hover:border-blue-200 hover:bg-muted hover:shadow-sm",
+          "border border-border bg-white text-foreground hover:border-[#2D7D46] hover:bg-[#F1F7F3]",
         ghost: "text-muted-foreground hover:bg-muted hover:text-foreground",
-        danger: "bg-[#C0392B] text-white hover:-translate-y-0.5 hover:brightness-110",
+        danger: "bg-[#C0392B] text-white hover:bg-[#A93226]",
       },
       size: {
         default: "h-11 px-4",

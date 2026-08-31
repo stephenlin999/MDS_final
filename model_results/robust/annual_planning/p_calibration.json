@@ -1,0 +1,349 @@
+{
+  "cases": [
+    {
+      "month": 1,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.0,
+      "solveSeconds": 0.575
+    },
+    {
+      "month": 1,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.0,
+      "solveSeconds": 0.651
+    },
+    {
+      "month": 1,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.003282,
+      "solveSeconds": 0.742
+    },
+    {
+      "month": 1,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.003282,
+      "solveSeconds": 0.75
+    },
+    {
+      "month": 2,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.000609,
+      "solveSeconds": 0.48
+    },
+    {
+      "month": 2,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.000609,
+      "solveSeconds": 0.517
+    },
+    {
+      "month": 2,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.0,
+      "solveSeconds": 0.274
+    },
+    {
+      "month": 2,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.0,
+      "solveSeconds": 0.28
+    },
+    {
+      "month": 3,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.000241,
+      "solveSeconds": 0.328
+    },
+    {
+      "month": 3,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.000241,
+      "solveSeconds": 0.282
+    },
+    {
+      "month": 3,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.000811,
+      "solveSeconds": 0.398
+    },
+    {
+      "month": 3,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.000811,
+      "solveSeconds": 0.453
+    },
+    {
+      "month": 4,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.002522,
+      "solveSeconds": 0.418
+    },
+    {
+      "month": 4,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.002522,
+      "solveSeconds": 0.468
+    },
+    {
+      "month": 4,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.002632,
+      "solveSeconds": 0.524
+    },
+    {
+      "month": 4,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.002632,
+      "solveSeconds": 0.528
+    },
+    {
+      "month": 5,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.000249,
+      "solveSeconds": 0.276
+    },
+    {
+      "month": 5,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.000249,
+      "solveSeconds": 0.282
+    },
+    {
+      "month": 5,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.002209,
+      "solveSeconds": 0.532
+    },
+    {
+      "month": 5,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.002209,
+      "solveSeconds": 0.37
+    },
+    {
+      "month": 6,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.004113,
+      "solveSeconds": 0.501
+    },
+    {
+      "month": 6,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.004113,
+      "solveSeconds": 0.385
+    },
+    {
+      "month": 6,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.003421,
+      "solveSeconds": 0.274
+    },
+    {
+      "month": 6,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.003421,
+      "solveSeconds": 0.282
+    },
+    {
+      "month": 7,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.003536,
+      "solveSeconds": 0.28
+    },
+    {
+      "month": 7,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.003536,
+      "solveSeconds": 0.331
+    },
+    {
+      "month": 7,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.005002,
+      "solveSeconds": 0.28
+    },
+    {
+      "month": 7,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.005002,
+      "solveSeconds": 0.275
+    },
+    {
+      "month": 8,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.000191,
+      "solveSeconds": 0.323
+    },
+    {
+      "month": 8,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.000191,
+      "solveSeconds": 0.278
+    },
+    {
+      "month": 8,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.000987,
+      "solveSeconds": 0.287
+    },
+    {
+      "month": 8,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.000987,
+      "solveSeconds": 0.284
+    },
+    {
+      "month": 9,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.003794,
+      "solveSeconds": 0.369
+    },
+    {
+      "month": 9,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.003794,
+      "solveSeconds": 0.298
+    },
+    {
+      "month": 9,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.005254,
+      "solveSeconds": 0.366
+    },
+    {
+      "month": 9,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.005254,
+      "solveSeconds": 0.281
+    },
+    {
+      "month": 10,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.00106,
+      "solveSeconds": 0.574
+    },
+    {
+      "month": 10,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.001249,
+      "solveSeconds": 0.462
+    },
+    {
+      "month": 10,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.001261,
+      "solveSeconds": 0.357
+    },
+    {
+      "month": 10,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.001261,
+      "solveSeconds": 0.356
+    },
+    {
+      "month": 11,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.002261,
+      "solveSeconds": 0.707
+    },
+    {
+      "month": 11,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.002261,
+      "solveSeconds": 0.787
+    },
+    {
+      "month": 11,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.0,
+      "solveSeconds": 0.414
+    },
+    {
+      "month": 11,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.0,
+      "solveSeconds": 0.394
+    },
+    {
+      "month": 12,
+      "day": 8,
+      "state": "month_start",
+      "pMin": 0.0,
+      "solveSeconds": 0.534
+    },
+    {
+      "month": 12,
+      "day": 8,
+      "state": "near_contract",
+      "pMin": 0.0,
+      "solveSeconds": 0.592
+    },
+    {
+      "month": 12,
+      "day": 22,
+      "state": "month_start",
+      "pMin": 0.004844,
+      "solveSeconds": 0.531
+    },
+    {
+      "month": 12,
+      "day": 22,
+      "state": "near_contract",
+      "pMin": 0.004844,
+      "solveSeconds": 0.537
+    }
+  ],
+  "p95Minimum": 0.005002,
+  "selectedP": 0.05,
+  "grid": [
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.3
+  ]
+}

@@ -1,84 +1,57 @@
-@import url("https://fonts.googleapis.com/css2?family=Calistoga&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 222 47% 11%;
+    --background: 150 17% 98%;
+    --foreground: 220 19% 13%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 220 19% 13%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 221 100% 50%;
+    --popover-foreground: 220 19% 13%;
+    --primary: 139 47% 33%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 213 75% 65%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 221 100% 50%;
+    --secondary: 210 24% 95%;
+    --secondary-foreground: 220 19% 13%;
+    --muted: 210 24% 96%;
+    --muted-foreground: 215 14% 43%;
+    --accent: 139 47% 33%;
     --accent-foreground: 0 0% 100%;
     --destructive: 6 62% 46%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 100% 50%;
-    --radius: 0.875rem;
+    --border: 214 22% 88%;
+    --input: 214 22% 88%;
+    --ring: 139 47% 33%;
+    --radius: 0.5rem;
   }
 
-  * {
-    @apply border-border;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
   body {
     @apply bg-background font-sans text-foreground antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-feature-settings: "tnum" 1, "cv02", "cv03", "cv04";
   }
+  button, input, select { font: inherit; }
 }
 
 @layer utilities {
-  .gradient-text {
-    background: linear-gradient(90deg, #0052ff, #4d7cff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .dot-pattern {
-    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.22) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
-
-  .surface-pattern {
-    background-image: radial-gradient(circle, rgba(0, 82, 255, 0.08) 1px, transparent 1px);
-    background-size: 28px 28px;
-  }
-
-  .section-label {
-    @apply inline-flex items-center gap-3 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 font-mono text-xs uppercase tracking-[0.15em] text-[#0052FF];
-  }
-
-  .chart-card {
-    @apply rounded-2xl border border-border bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-premium;
-  }
+  .chart-surface { @apply min-w-0 overflow-visible rounded-lg border border-border bg-white; }
+  .eyebrow { @apply text-xs font-semibold uppercase text-[#2D7D46]; letter-spacing: 0; }
+  .tabular { font-variant-numeric: tabular-nums; }
 }
 
+.recharts-wrapper,
+.recharts-surface { overflow: visible; }
 .recharts-default-tooltip {
-  border-radius: 12px !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.12) !important;
+  border: 1px solid #d9e0dc !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 32px rgba(20, 29, 25, 0.14) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;

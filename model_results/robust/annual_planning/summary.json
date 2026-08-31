@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "runId": "annual-p-robust-s10-seed42",
+    "generatedAt": "2026-08-31T03:44:47.945511+08:00",
+    "status": "valid",
+    "simulationLabel": "全年規劃模擬，非未來節費保證",
+    "tariffVersion": "Taipower high-voltage three-period project profile, effective 2025-10-01",
+    "seed": 42,
+    "scenarioCount": 10,
+    "optimizationScenarioCount": 8,
+    "stressScenarioCount": 2,
+    "drawCount": 1000,
+    "solver": "HiGHS",
+    "source": {
+      "load_source": "Steel_industry_data.csv + Steel_industry_data_predict.csv",
+      "pv_source": "Renewable.csv calendar-aligned 2017 profiles",
+      "pv_scale_factor": 17.0,
+      "joint_data_limitation": "Load and PV are calendar-aligned cross-year analogues because same-year PV records are unavailable."
+    },
+    "invalidDays": []
+  },
+  "executiveSummary": {
+    "allGridAnnualCost": 5978793.0,
+    "deterministicAnnualCost": 4991661.0,
+    "robustAnnualCost": 5074476.0,
+    "robustSavings": 904317.0,
+    "robustSavingsRate": 15.1,
+    "robustPremium": 82815.0,
+    "downsideReduction": 805777.0,
+    "selectedP": 0.05,
+    "pvUtilization": 74.3,
+    "businessConclusion": "以有限的穩健成本換取不利情境下更可控的電費與超約風險。"
+  }
+}

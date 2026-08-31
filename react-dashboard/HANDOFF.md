@@ -1,130 +1,118 @@
-# React EMS Dashboard Handoff
+# P-Robust EMS Dashboard Handoff
 
 ## Project Summary
 
-`react-dashboard/` 是新的可跑 React EMS dashboard，用來展示 MILP 能源管理結果。目標使用者有兩種：business owner 需要在第一屏看到省多少錢，工程端需要往下鑽調度、SOC、超約、SHAP、Monte Carlo 與參數情境。它不改原本 EMS/MILP 程式，也不搬大型 CSV；前端使用本地 JSON。
+`react-dashboard/` is the primary owner and engineering presentation surface for the factory EMS project. It compares full grid purchase, PV self-consumption, deterministic MILP, and P-Robust MILP using one formal annual planning simulation. Owners see annual cost, savings, and downside exposure first. Engineers can inspect solved p points, monthly costs, 15-minute dispatch, scenario envelopes, billing components, solver metadata, and validation limitations.
 
-原 Streamlit 面板仍保留在 `dashboard/`，適合快速審計與 scenario CLI rerun。新的 React app 是主要展示/視覺原型。
+The legacy Streamlit dashboard remains separate. This React app does not call it and does not rerun optimization in the browser.
 
-## Tech Stack
+## Architecture And Stack
 
-- React 19 + Vite
-- Recharts
-- Tailwind CSS
-- shadcn/ui-style local components
-- Radix Tabs / Slider
-- lucide-react
-- Local JSON import only, no API/fetch calls
-
-## File Structure
+- React 19, Vite 7, Recharts 3, Tailwind CSS 3
+- Radix Tabs and Slider through local shadcn-style components
+- Lucide icons
+- Python 3.13, Pyomo, HiGHS, NumPy, pandas, and scikit-learn for annual data generation
+- Local JSON import only; no runtime API, fetch, CDN, or external font
 
 ```text
 react-dashboard/
-├── README.md
-├── HANDOFF.md
-├── package.json
-├── index.html
-├── vite.config.js
-├── tailwind.config.js
-├── postcss.config.js
-├── components.json
-├── public/
-│   └── owner-full-grid-robust-comparison.html # Standalone owner-facing robust comparison
+├── README.md                         # Build, data, and validation instructions
+├── HANDOFF.md                        # This continuation brief
+├── package.json                      # Dashboard and proposal commands
+├── index.html                        # Main dashboard entry
+├── proposal.html                     # Proposal build entry
+├── vite.config.js                    # Main Vite build
+├── vite.proposal.config.js           # Single-entry proposal bundle
+├── exports/
+│   └── ems-robust-client-proposal.html  # Fully offline deliverable
 ├── scripts/
-│   └── build-data.mjs              # EMS/model outputs -> frontend JSON
+│   ├── build-data.mjs                # Formal result validation and copy
+│   └── build-proposal.mjs            # Vite build plus JS/CSS inlining
 └── src/
     ├── App.jsx
     ├── main.jsx
-    ├── dashboard.jsx               # Main four-tab dashboard
-    ├── index.css                   # Fonts, tokens, global utilities
-    ├── data/
-    │   └── ems-dashboard-data.json # Generated local dashboard data
-    ├── lib/
-    │   └── utils.js
-    └── components/ui/
-        ├── badge.jsx
-        ├── button.jsx
-        ├── card.jsx
-        ├── input.jsx
-        ├── slider.jsx
-        └── tabs.jsx
+    ├── dashboard.jsx                 # Four-tab product dashboard
+    ├── proposal-main.jsx
+    ├── proposal.jsx                  # Six-section client story
+    ├── proposal.css
+    ├── index.css                     # Shared tokens and chart overflow rules
+    ├── data/ems-dashboard-data.json  # Generated formal presentation data
+    └── components/ui/                # Local UI primitives
+
+robust_ems/annual_plan.py              # Formal annual simulator and data writer
+model_results/robust/annual_planning/  # Versioned formal outputs
 ```
 
-## Design System Snapshot
+## Data Contract
 
-The design direction is Minimalist Modern: off-white canvas, deep slate text, Electric Blue gradient accents, white elevated cards, and semantic green/red only for savings/risk.
+The sole UI source is `model_results/robust/annual_planning/presentation.json`:
 
-Core tokens:
+- `meta`: run ID, status, tariff, seed, scenario counts, solver, source limitations
+- `executiveSummary`: annual costs, robust savings, robust premium, downside reduction
+- `strategyComparison`: annual, P50, P90, worst cost, events, peak, PV utilization
+- `monthlyComparison`: 12 monthly strategy records
+- `robustnessFrontier`: solved p points only; no browser interpolation
+- `scenarioCoverage`: envelope, p calibration, solve time, and ex-post regret evidence
+- `dailyDispatch`: three representative days per month, 96 intervals per day
+- `billingBreakdown`: energy, basic, excess, and degradation cost
+- `modelAssumptions`: battery, contracts, decision structure, and data limitations
 
-- Background: `#FAFAFA`
-- Foreground: `#0F172A`
-- Accent gradient: `#0052FF -> #4D7CFF`
-- Savings green: `#2D7D46`
-- Alert red: `#C0392B`
-- Muted text: `#64748B`
-- Border: `#E2E8F0`
-- Display font: Calistoga
-- UI/body font: Inter
-- Mono labels: JetBrains Mono
+`scripts/build-data.mjs` fails closed when the source is missing or invalid. Do not reintroduce mock fallback logic.
 
-Patterns already in use:
+## Design System
 
-- Section label pills with mono uppercase text and blue dot
-- Large executive KPI cards before technical tabs
-- Sticky tab rail
-- Recharts cards with legends, grid lines, and hover tooltip
-- Dark inverted executive readout section
-- Live scenario sliders with right-side preview
+- Graphite `#18201C`: primary text and inverted evidence sections
+- Project green `#2D7D46`: savings, P-Robust, and positive status
+- Alert red `#C0392B`: full-grid cost, over-contract exposure, failed validation
+- SOC blue `#1B4F72`
+- Neutral gray `#9CA3AF`
+- Background `#F8FAF9`, cards white, border `#D9E0DC`
+- System UI fonts only; tabular numerals for metrics
+- Card radius is at most 8 px
+- Stable chart heights, `min-width: 0`, and overflow-visible Recharts tooltips
+- No persistent floating, pulsing, scale, glow-orb, or background animation
 
 ## Current State
 
-Working:
+Implemented and working:
 
-- Dashboard runs at `http://localhost:5173/` with `npm run dev -- --port 5173`.
-- `npm run build:data` creates `src/data/ems-dashboard-data.json` from real local EMS/model outputs.
-- `npm run build` succeeds.
-- Four tabs are implemented:
-  - `總覽與節費`
-  - `月調度執行`
-  - `MILP 決策解釋`
-  - `風險檢查 / 場景重跑`
-- Implemented interactions:
-  - series toggles
-  - click-to-day zoom state
-  - Monte Carlo generation/load toggle
-  - live parameter sliders
-  - ROI input recalculation
-- Decision explanation data now covers all 12 months:
-  - July and December use complete existing EMS output.
-  - Other months use three Monte Carlo-calibrated future scenario days per month.
-- The dashboard header links to a standalone owner-facing comparison of full grid purchase, PV only, the previous deterministic EMS, and P-robust dispatch. It includes interactive chart tooltips and responsive layouts.
+- Formal 1,000-draw, 10-scenario, 365-day annual simulation
+- Four owner strategies and 12-month comparison
+- Daily two-stage P-Robust dispatch with one-hour non-anticipativity
+- P calibration, solved robustness frontier, paired stress envelope, and daily ex-post regret calculation
+- React tabs: Decision Overview, Robust Strategy, Daily Dispatch, Model Evidence
+- Month and representative-day synchronization
+- Deterministic/P-Robust dispatch switch, series toggles, scenario band, and floating tooltips
+- Six-section client proposal with Executive/Technical mode, solved-point p slider, ROI input, and offline charts
+- Fail-closed data build and fully inlined proposal build
 
 ## Known Issues
 
-Priority:
-
-1. The frontend imports a generated JSON file containing 15-minute schedules, so the build has a large main chunk. It is acceptable for a local prototype, but production should split data by month/day or lazy-load static JSON.
-2. The full MILP rerun button is visual-only. If real reruns are needed, wire it to a controlled backend or reuse the Streamlit runner logic.
-3. Ten months use generated Monte Carlo-calibrated scenario days, not solved full-month MILP output. Keep this wording visible in the UI to avoid overclaiming.
-4. Load SHAP values are prototype values because only solar SHAP output exists in `model_results/reports/shap_importance.csv`.
-5. The standalone P-robust comparison is a frozen representative-day snapshot. Regenerate it when robust outputs or the comparison date change; do not treat its 51.7% daily reduction as an annual guarantee.
+1. **Critical scientific limitation:** daily ex-post regret coverage does not currently support a hard P-Robust guarantee. Keep the failed/passed result visible. The annual cost and downside results remain planning-simulation evidence, not a future guarantee.
+2. **High:** the annual scenario envelope is an in-sample planning-path check. It must not be described as independent coverage.
+3. **High:** load and PV are calendar-aligned cross-year analogues because a same-year joint history is unavailable. This weakens causal and out-of-sample claims.
+4. **Moderate:** the recourse policy selects a full-day analogue branch after one observed hour. A production controller should re-optimize on a rolling horizon instead of assuming that branch remains correct.
+5. **Moderate:** the solved p frontier can be nearly flat because p constraints are non-binding over the requested grid. Do not invent variation for presentation.
+6. **Minor:** importing full dispatch JSON produces a large initial bundle. The local and offline use case tolerates it; hosted production should split data by month.
 
 ## Next Steps
 
-1. Split generated data into `overview.json`, `month_07.json`, `month_12.json`, and model/MC JSON so the initial bundle only loads executive data.
-2. Add a real scenario execution path after deciding whether the host will be local-only, Streamlit-backed, or API-backed.
-3. Add chart-level empty states for months without detailed 15-minute schedules.
-4. Replace prototype load SHAP with real load model explanation if that model exists later.
-5. Add Playwright visual checks for desktop and mobile once this becomes a committed app.
+1. Rebuild scenario generation with a genuinely held-out joint load/PV validation period, then recalibrate p against daily ex-post regret.
+2. Compare the current branch policy with hourly rolling re-optimization, recording runtime and regret improvement before changing the production claim.
+3. Add an explicit model-validation state separate from solver/data-build status if this moves beyond proposal use.
+4. Split dashboard data by month for hosted deployment while keeping the proposal export fully inlined.
+5. Add Playwright screenshot and interaction regression tests for the four required viewport sizes.
 
-## Constraints & Conventions
+## Constraints And Conventions
 
-- Keep `react-dashboard/` independent from the legacy Streamlit `dashboard/`.
-- Do not modify `/Users/stephenlin/Downloads/mds-final` engine code from this app.
-- Keep data generation one-way: EMS/model outputs -> local JSON -> React import.
-- Use Tailwind utilities and local shadcn-style components; avoid one-off inline styles except chart colors and dynamic widths.
-- Preserve the executive-first layout: money and savings above technical detail.
+- Keep UI text free of the historical source year; display months as `1月` through `12月`.
+- Keep `全年規劃模擬，非未來節費保證` visible.
+- Never substitute mock data when formal output is missing or invalid.
+- Never interpolate p results or imply that a slider reruns MILP.
+- Preserve the distinction between pipeline status, in-sample envelope coverage, and out-of-sample regret validation.
+- Do not modify the external EMS source project from the React build.
+- Keep charts responsive, fixed-height, hoverable, and free of layout-changing animation.
 
 ## Suggested First Action
 
-Refactor `scripts/build-data.mjs` to write one JSON file per month and update `src/dashboard.jsx` to lazy-load selected month data. This directly fixes the largest current technical issue without changing the UI.
+Create a held-out replay experiment that uses one month only: build scenarios from dates strictly before the replay month, execute the current one-hour branch policy on each replay day, and compare daily ex-post regret against hourly rolling re-optimization. Record p50/p90/p95 regret, coverage at each solved p, event count, and median/P95 runtime. This directly tests the most important unresolved claim without redesigning the UI first.

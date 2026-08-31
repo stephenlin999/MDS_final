@@ -1,0 +1,12 @@
+.proposal-shell { background: #f8faf9; color: #18201c; }
+.proposal-section { scroll-margin-top: 84px; }
+.proposal-hero {
+  background: #18201c;
+  color: white;
+}
+.proposal-chart .recharts-wrapper,
+.proposal-chart .recharts-surface { overflow: visible; }
+@media print {
+  .proposal-nav { display: none !important; }
+  .proposal-section { break-inside: avoid; }
+}
